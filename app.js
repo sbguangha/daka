@@ -131,26 +131,47 @@ function checkNewDay() {
     if (appState.lastCheckDate !== today) {
         // 保存昨天的数据到历史
         if (appState.lastCheckDate) {
-            const yesterdayKey = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-            appState.history[yesterdayKey] = { ...appState.completedTasks };
+            const lastDate = new Date(appState.lastCheckDate);
+            const lastDateKey = formatDateKey(lastDate);
+            appState.history[lastDateKey] = { ...appState.completedTasks };
         }
-        
+
+        // 计算连续打卡天数
+        calculateStreak();
+
+        // 重置今日任务
         appState.completedTasks = {};
         appState.lastCheckDate = today;
-        
-        // 检查是否连续打卡
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toDateString();
-        
-        if (appState.lastCheckDate === yesterdayStr) {
-            appState.streak += 1;
-        } else {
-            appState.streak = 0;
-        }
-        
+
         saveData();
     }
+}
+
+// 计算连续打卡天数
+function calculateStreak() {
+    const today = new Date();
+    let streak = 0;
+    let currentDate = new Date(today);
+
+    // 从昨天开始往前检查
+    currentDate.setDate(currentDate.getDate() - 1);
+
+    while (true) {
+        const dateKey = formatDateKey(currentDate);
+        const dayData = appState.history[dateKey] || {};
+
+        // 检查这一天是否有完成任务
+        const hasCompletedTasks = Object.keys(dayData).some(key => dayData[key]);
+
+        if (hasCompletedTasks) {
+            streak++;
+            currentDate.setDate(currentDate.getDate() - 1);
+        } else {
+            break;
+        }
+    }
+
+    appState.streak = streak;
 }
 
 // 渲染任务卡片
@@ -169,7 +190,7 @@ function renderTasks() {
         const titleDiv = document.createElement('div');
         titleDiv.className = `rounded-xl p-4 mb-4 ${group.theme}`;
         titleDiv.innerHTML = `
-            <h3 class="text-xl font-bold text-center"">${group.title}</h3>
+            <h3 class="text-xl font-bold text-center">${group.title}</h3>
         `;
         groupDiv.appendChild(titleDiv);
         
@@ -234,8 +255,7 @@ function createTaskCard(task, isCompleted, isToday = true) {
                     isCompleted ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'
                 }"></i>
             </div>
-            <h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-1">${task.name}</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">${task.category}</p>
+            <h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-4">${task.name}</h3>
             <button ${onclick ? `onclick="${onclick}"` : ''} class="w-full py-2 px-4 rounded-lg font-medium transition-all duration-300 ${buttonClass}"
                 ${!isToday ? 'disabled' : ''}>
                 ${buttonText}
@@ -249,29 +269,19 @@ function createTaskCard(task, isCompleted, isToday = true) {
 // 切换任务状态
 function toggleTask(taskId) {
     if (!isCurrentDateToday()) return; // 如果不是今天，不能修改
-    
+
     const isCompleted = appState.completedTasks[taskId];
-    
+
     if (isCompleted) {
         delete appState.completedTasks[taskId];
     } else {
         appState.completedTasks[taskId] = true;
-        showSuccessAnimation(taskId);
     }
-    
+
     saveData();
     renderTasks();
     updateProgress();
     lucide.createIcons();
-}
-
-// 成功动画
-function showSuccessAnimation(taskId) {
-    const button = event.target;
-    button.style.transform = 'scale(0.95)';
-    setTimeout(() => {
-        button.style.transform = 'scale(1)';
-    }, 100);
 }
 
 // 更新进度
@@ -321,10 +331,11 @@ function setupThemeToggle() {
 function showStats() {
     const modal = document.getElementById('statsModal');
     const content = document.getElementById('statsContent');
-    
+
     // 计算统计数据
     const stats = calculateStats();
-    
+    const allTasks = taskGroups.flatMap(group => group.tasks);
+
     content.innerHTML = `
         <div class="space-y-6">
             <!-- 总览 -->
@@ -354,7 +365,7 @@ function showStats() {
             <div class="glass-effect rounded-xl p-4">
                 <h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-3">各项目打卡情况</h3>
                 <div class="space-y-3">
-                    ${tasks.map(task => `
+                    ${allTasks.map(task => `
                         <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                             <div class="flex items-center space-x-3">
                                 <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
@@ -362,14 +373,13 @@ function showStats() {
                                 </div>
                                 <div>
                                     <p class="font-medium text-gray-900 dark:text-gray-100">${task.name}</p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">${task.category}</p>
                                 </div>
                             </div>
                             <div class="text-right">
                                 <p class="font-semibold text-gray-900 dark:text-gray-100">${stats.taskStats[task.id]?.completed || 0} / ${stats.totalDays}</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">${((stats.taskStats[task.id]?.completed || 0) / stats.totalDays * 100).toFixed(0)}%</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">${stats.totalDays > 0 ? ((stats.taskStats[task.id]?.completed || 0) / stats.totalDays * 100).toFixed(0) : 0}%</p>
                             </div>
-                        </div
+                        </div>
                     `).join('')}
                 </div>
             </div>
@@ -381,9 +391,9 @@ function showStats() {
                     ${generateHeatmap()}
                 </div>
             </div>
-        </div
+        </div>
     `;
-    
+
     modal.classList.remove('hidden');
     lucide.createIcons();
 }
@@ -398,39 +408,38 @@ function hideStats() {
 function calculateStats() {
     const history = appState.history;
     const today = formatDateKey(new Date());
-    
+
     // 合并今日数据
     const allData = { ...history, [today]: appState.completedTasks };
-    
+
     const allTasks = taskGroups.flatMap(group => group.tasks);
     const totalDays = Object.keys(allData).length;
-    const completedDays = Object.values(allData).filter(day => 
+    const completedDays = Object.values(allData).filter(day =>
         Object.keys(day).length > 0
     ).length;
-    
+
     let totalCompletions = 0;
     let taskStats = {};
-    
+
     // 初始化任务统计
-    const allTasks = taskGroups.flatMap(group => group.tasks);
     allTasks.forEach(task => {
         taskStats[task.id] = { completed: 0, total: totalDays, name: task.name };
     });
-    
+
     // 计算每个任务的完成次数
     Object.values(allData).forEach(dayData => {
         const completedCount = Object.keys(dayData).filter(key => dayData[key]).length;
         totalCompletions += completedCount;
-        
+
         allTasks.forEach(task => {
             if (dayData[task.id]) {
                 taskStats[task.id].completed++;
             }
         });
     });
-    
+
     const averageCompletion = totalDays > 0 ? (totalCompletions / (totalDays * allTasks.length)) * 100 : 0;
-    
+
     return {
         totalDays,
         completedDays,
@@ -445,46 +454,45 @@ function generateHeatmap() {
     const today = new Date();
     const thirtyDaysAgo = new Date(today);
     thirtyDaysAgo.setDate(today.getDate() - 30);
-    
+
+    const allTasks = taskGroups.flatMap(group => group.tasks);
     let html = '';
     const dayNames = ['日', '一', '二', '三', '四', '五', '六'];
-    
+
     // 添加星期标题
     dayNames.forEach(day => {
         html += `<div class="text-center font-medium text-gray-600 dark:text-gray-400">${day}</div>`;
     });
-    
+
     // 生成30天的热力图
     for (let i = 0; i < 30; i++) {
         const date = new Date(thirtyDaysAgo);
         date.setDate(thirtyDaysAgo.getDate() + i);
         const dateKey = formatDateKey(date);
-        
+
         const dayData = appState.history[dateKey] || {};
         const todayKey = formatDateKey(new Date());
         const todayData = dateKey === todayKey ? appState.completedTasks : {};
         const combinedData = { ...dayData, ...todayData };
-        
+
         const completedCount = Object.keys(combinedData).filter(key => combinedData[key]).length;
-        const intensity = completedCount / allTasks.length;
-        
+        const intensity = allTasks.length > 0 ? completedCount / allTasks.length : 0;
+
         let bgColor = 'bg-gray-100 dark:bg-gray-800';
         if (intensity > 0) {
             if (intensity <= 0.3) bgColor = 'bg-green-200 dark:bg-green-800';
             else if (intensity <= 0.7) bgColor = 'bg-green-400 dark:bg-green-600';
             else bgColor = 'bg-green-600 dark:bg-green-400';
         }
-        
-        const dayOfWeek = date.getDay();
-        
+
         html += `
-            <div class="aspect-square rounded ${bgColor} flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-300" 
+            <div class="aspect-square rounded ${bgColor} flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-300"
                  title="${date.toLocaleDateString('zh-CN')}: ${completedCount}/${allTasks.length}">
                 ${date.getDate()}
             </div>
         `;
     }
-    
+
     return html;
 }
 
