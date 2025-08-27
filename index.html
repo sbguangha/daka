@@ -25,6 +25,21 @@
             transform: rotate(-90deg);
             transform-origin: 50% 50%;
         }
+
+        /* Hover Card 样式 */
+        .relative:hover .hover-card {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .hover-card {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .dark .hover-card {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body class="h-full bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
@@ -45,11 +60,46 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- Hover Card 中间位置 -->
+                    <div class="relative inline-block">
+                        <button class="text-2xl font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline transition-colors">@加油！</button>
+                        <div class="absolute left-1/2 transform -translate-x-1/2 top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 opacity-0 invisible translate-y-2 transition-all duration-200 z-50 hover-card">
+                            <div class="flex justify-between gap-4">
+                                <div class="flex-shrink-0">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
+                                        <img src="https://github.com/vercel.png" alt="Avatar" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="w-full h-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-400 text-sm font-medium" style="display: none;">VC</div>
+                                    </div>
+                                </div>
+                                <div class="space-y-1 flex-1">
+                                    <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100">坚持打卡，未来有光！</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        每天打卡的你，正悄悄把 "想做" 活成 "做到"，超棒的！ by @葛勇攀.
+                                    </p>
+                                    <div class="text-gray-500 dark:text-gray-500 text-xs">
+                                        Joined 8月 2025年
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex items-center space-x-4">
                         <div class="text-right">
                             <p class="text-sm text-gray-600 dark:text-gray-400">连续打卡</p>
                             <p class="text-2xl font-semibold text-blue-600 dark:text-blue-400" id="streakCount">0</p>
                         </div>
+                        <div class="text-right" id="userInfo" style="display: none;">
+                            <p class="text-xs text-gray-500 dark:text-gray-500">已登录</p>
+                            <p class="text-sm text-gray-700 dark:text-gray-300" id="userEmail"></p>
+                        </div>
+                        <button id="syncToggle" class="p-2 rounded-lg bg-green-100 dark:bg-green-800 hover:bg-green-200 dark:hover:bg-green-700 transition-colors" title="数据同步">
+                            <i data-lucide="cloud" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+                        </button>
+                        <button id="loginToggle" class="p-2 rounded-lg bg-blue-100 dark:bg-blue-800 hover:bg-blue-200 dark:hover:bg-blue-700 transition-colors">
+                            <i data-lucide="user" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+                        </button>
                         <button id="statsToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                             <i data-lucide="bar-chart-3" class="w-5 h-5 text-gray-600 dark:text-gray-400"></i>
                         </button>
@@ -112,9 +162,93 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Login Modal -->
+            <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+                <div class="min-h-screen flex items-center justify-center p-4">
+                    <div class="glass-effect rounded-2xl p-6 max-w-md w-full">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">账户登录</h2>
+                            <button id="closeLogin" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <i data-lucide="x" class="w-5 h-5 text-gray-600 dark:text-gray-400"></i>
+                            </button>
+                        </div>
+                        <div id="loginContent">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">邮箱</label>
+                                    <input type="email" id="loginEmail" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100" placeholder="your@email.com">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">密码</label>
+                                    <input type="password" id="loginPassword" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100" placeholder="密码">
+                                </div>
+                                <div id="loginError" class="text-red-500 text-sm hidden"></div>
+                                <div class="flex space-x-3">
+                                    <button id="loginBtn" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">登录</button>
+                                    <button id="registerBtn" class="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">注册</button>
+                                </div>
+                                <div class="text-center">
+                                    <button id="logoutBtn" class="text-red-600 hover:text-red-700 text-sm hidden">退出登录</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sync Modal -->
+            <div id="syncModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+                <div class="min-h-screen flex items-center justify-center p-4">
+                    <div class="glass-effect rounded-2xl p-6 max-w-md w-full">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">数据同步</h2>
+                            <button id="closeSync" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <i data-lucide="x" class="w-5 h-5 text-gray-600 dark:text-gray-400"></i>
+                            </button>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                <p>💡 <strong>解决跨浏览器数据同步问题：</strong></p>
+                                <ul class="list-disc list-inside mt-2 space-y-1">
+                                    <li>导出数据到文件，在其他浏览器导入</li>
+                                    <li>登录账户实现云端同步（推荐）</li>
+                                </ul>
+                            </div>
+
+                            <div class="border-t pt-4">
+                                <h3 class="font-medium mb-3">📁 文件同步</h3>
+                                <div class="space-y-2">
+                                    <button id="exportBtn" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                                        📤 导出数据
+                                    </button>
+                                    <div class="flex items-center space-x-2">
+                                        <input type="file" id="importFile" accept=".json" class="hidden">
+                                        <button id="importBtn" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                                            📥 导入数据
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t pt-4">
+                                <h3 class="font-medium mb-3">☁️ 云端同步</h3>
+                                <div id="cloudSyncStatus" class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                    未登录 - 点击用户按钮登录账户
+                                </div>
+                                <button id="cloudSyncBtn" class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    🔄 立即同步
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
+    <script src="data-sync.js"></script>
+    <script src="cloud-storage.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
