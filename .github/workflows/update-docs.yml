@@ -1,0 +1,131 @@
+name: 自动更新文档
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '*.js'
+      - '*.html'
+      - 'package.json'
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # 每天 UTC 时间 02:00 (北京时间 10:00) 运行
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    # 允许手动触发
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 获取完整历史记录
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 安装依赖
+      run: |
+        if [ -f package.json ]; then
+          npm ci || npm install
+        fi
+
+    - name: 运行文档更新脚本
+      run: |
+        if [ -f scripts/update-docs.js ]; then
+          node scripts/update-docs.js
+        else
+          echo "文档更新脚本不存在，跳过"
+        fi
+
+    - name: 检查文件变化
+      id: check-changes
+      run: |
+        if git diff --quiet; then
+          echo "has-changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: 提交文档更新
+      if: steps.check-changes.outputs.has-changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "docs: 自动更新文档 [skip ci]" || exit 0
+
+    - name: 推送更改
+      if: steps.check-changes.outputs.has-changes == 'true'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+
+  generate-release-notes:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: update-docs
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 生成发布说明
+      id: release-notes
+      run: |
+        # 获取最新的提交信息
+        LATEST_COMMIT=$(git log -1 --pretty=format:"%s")
+        echo "latest-commit=$LATEST_COMMIT" >> $GITHUB_OUTPUT
+        
+        # 检查是否需要创建发布
+        if [[ "$LATEST_COMMIT" == *"feat:"* ]] || [[ "$LATEST_COMMIT" == *"BREAKING CHANGE:"* ]]; then
+          echo "should-release=true" >> $GITHUB_OUTPUT
+        else
+          echo "should-release=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: 创建发布标签
+      if: steps.release-notes.outputs.should-release == 'true'
+      run: |
+        # 从 package.json 获取版本号
+        VERSION=$(node -p "require('./package.json').version")
+        git tag "v$VERSION"
+        git push origin "v$VERSION"
+
+  deploy-demo:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: update-docs
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+
+    - name: 部署到 GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+        exclude_assets: '.github,scripts,docs/CONTRIBUTING.md,docs/API.md'
+
+  notify-updates:
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [update-docs, generate-release-notes, deploy-demo]
+    
+    steps:
+    - name: 发送通知
+      run: |
+        echo "📝 文档更新工作流完成"
+        echo "更新文档: ${{ needs.update-docs.result }}"
+        echo "生成发布说明: ${{ needs.generate-release-notes.result }}"
+        echo "部署演示: ${{ needs.deploy-demo.result }}"

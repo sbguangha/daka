@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 用户设置
+  settings UserSettings?
+
+  // 打卡记录
+  checkIns CheckIn[]
+
+  // 连续打卡记录
+  streaks Streak[]
+
+  @@map("users")
+}
+
+model UserSettings {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 主题设置
+  theme String @default("system") // "light" | "dark" | "system"
+
+  // 通知设置
+  notifications Boolean @default(true)
+
+  // 时区设置
+  timezone String @default("Asia/Shanghai")
+
+  // 自定义任务组
+  customTaskGroups Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_settings")
+}
+
+model TaskGroup {
+  id          String @id @default(cuid())
+  title       String
+  description String?
+  theme       String // Tailwind CSS 类名
+  order       Int    @default(0)
+  isDefault   Boolean @default(true)
+  isActive    Boolean @default(true)
+
+  // 任务
+  tasks Task[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("task_groups")
+}
+
+model Task {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  icon        String // Lucide 图标名
+  order       Int    @default(0)
+  isActive    Boolean @default(true)
+
+  // 所属任务组
+  taskGroupId String
+  taskGroup   TaskGroup @relation(fields: [taskGroupId], references: [id], onDelete: Cascade)
+
+  // 打卡记录
+  checkIns CheckIn[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tasks")
+}
+
+model CheckIn {
+  id     String @id @default(cuid())
+  date   DateTime // 打卡日期 (YYYY-MM-DD)
+  
+  // 用户和任务
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  // 打卡时间
+  checkedAt DateTime @default(now())
+
+  // 备注
+  note String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 确保同一用户同一天同一任务只能打卡一次
+  @@unique([userId, taskId, date])
+  @@map("check_ins")
+}
+
+model Streak {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 连续打卡天数
+  count Int @default(0)
+
+  // 开始和结束日期
+  startDate DateTime
+  endDate   DateTime?
+
+  // 是否为当前连续记录
+  isCurrent Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("streaks")
+}
+
+model DailyStats {
+  id     String   @id @default(cuid())
+  date   DateTime @unique // 统计日期
+  
+  // 全局统计
+  totalUsers      Int @default(0)
+  totalCheckIns   Int @default(0)
+  activeUsers     Int @default(0)
+  
+  // 任务统计
+  taskStats Json? // { taskId: count }
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("daily_stats")
+}
