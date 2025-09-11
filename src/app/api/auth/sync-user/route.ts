@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { executeQuery, executeQuerySingle, executeTransaction } from "@/lib/database"
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 // POST /api/auth/sync-user - 同步用户信息到数据库
 export async function POST(request: NextRequest) {
   try {

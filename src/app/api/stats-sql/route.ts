@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { apiRequireAuth } from "@/lib/auth-utils"
 import { statsData, streakData } from "@/lib/business-data"
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 // GET /api/stats-sql - 获取用户统计数据（原生SQL版本）
 export async function GET(request: NextRequest) {
   try {

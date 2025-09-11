@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { apiRequireAuth } from "@/lib/auth-utils"
 import { executeQuery, executeQuerySingle, executeTransaction } from "@/lib/database"
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 // GET /api/user - 获取当前用户信息（原生SQL实现）
 export async function GET() {
   try {

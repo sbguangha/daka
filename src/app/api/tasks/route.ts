@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { apiRequireAuth } from "@/lib/auth-utils"
 import { taskData } from "@/lib/business-data"
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 // GET /api/tasks - 获取任务列表
 export async function GET(request: NextRequest) {
   try {
