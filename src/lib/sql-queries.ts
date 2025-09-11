@@ -113,6 +113,13 @@ export const taskQueries = {
     SELECT id, name, description, icon, "order", "isActive", "taskGroupId"
     FROM tasks 
     WHERE id = $1 AND "isActive" = true
+  `,
+
+  // 创建新任务
+  create: `
+    INSERT INTO tasks (name, description, icon, "taskGroupId", "order", "isActive", "createdAt", "updatedAt")
+    VALUES ($1, $2, $3, $4, COALESCE((SELECT MAX("order") + 1 FROM tasks WHERE "taskGroupId" = $4), 0), true, NOW(), NOW())
+    RETURNING id, name, description, icon, "order", "isActive", "taskGroupId", "createdAt", "updatedAt"
   `
 }
 

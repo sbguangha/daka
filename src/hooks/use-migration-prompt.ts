@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useAppStore } from "@/store/app-store"
 import { api } from "@/lib/api-client"
 
@@ -15,13 +15,18 @@ export function useMigrationPrompt() {
   const [shouldShowMigration, setShouldShowMigration] = useState(false)
   const [migrationChecked, setMigrationChecked] = useState(false)
 
-  useEffect(() => {
-    if (isAuthenticated && user && !migrationChecked) {
-      checkIfMigrationNeeded()
-    }
-  }, [isAuthenticated, user, migrationChecked])
+  const getLocalDataSummary = useCallback(() => {
+    const checkInDays = Object.keys(checkInHistory).length
+    const totalCheckIns = Object.values(checkInHistory).reduce(
+      (total, dayCheckIns) => total + Object.values(dayCheckIns).filter(Boolean).length,
+      0
+    )
+    const habits = timesheetData.habits.length
 
-  const checkIfMigrationNeeded = async () => {
+    return { checkInDays, totalCheckIns, habits }
+  }, [checkInHistory, timesheetData.habits])
+
+  const checkIfMigrationNeeded = useCallback(async () => {
     try {
       // 检查本地是否有数据
       const hasLocalData = getLocalDataSummary().totalCheckIns > 0
@@ -31,20 +36,12 @@ export function useMigrationPrompt() {
         return
       }
 
-      // 检查云端迁移状态
-      const response = await api.migrate.status()
-      
-      if (response.success && response.data) {
-        const { needsMigration, checkInCount } = response.data
+      // Migration API has been removed, check if user has local data and hasn't dismissed
+      if (hasLocalData) {
+        const migrationDismissed = localStorage.getItem(`migration-dismissed-${user?.id}`)
         
-        // 如果需要迁移（云端无数据）或者本地数据比云端多，提示迁移
-        if (needsMigration || (hasLocalData && checkInCount === 0)) {
-          // 检查用户是否已经忽略过迁移提示
-          const migrationDismissed = localStorage.getItem(`migration-dismissed-${user?.id}`)
-          
-          if (!migrationDismissed) {
-            setShouldShowMigration(true)
-          }
+        if (!migrationDismissed) {
+          setShouldShowMigration(true)
         }
       }
     } catch (error) {
@@ -52,18 +49,13 @@ export function useMigrationPrompt() {
     } finally {
       setMigrationChecked(true)
     }
-  }
+  }, [getLocalDataSummary, user?.id])
 
-  const getLocalDataSummary = () => {
-    const checkInDays = Object.keys(checkInHistory).length
-    const totalCheckIns = Object.values(checkInHistory).reduce(
-      (total, dayCheckIns) => total + Object.values(dayCheckIns).filter(Boolean).length,
-      0
-    )
-    const habits = timesheetData.habits.length
-
-    return { checkInDays, totalCheckIns, habits }
-  }
+  useEffect(() => {
+    if (isAuthenticated && user && !migrationChecked) {
+      checkIfMigrationNeeded()
+    }
+  }, [isAuthenticated, user, migrationChecked, checkIfMigrationNeeded])
 
   const dismissMigrationPrompt = () => {
     setShouldShowMigration(false)

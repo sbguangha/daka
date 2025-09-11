@@ -52,10 +52,12 @@ export function MigrationModal({ open, onOpenChange }: MigrationModalProps) {
 
   const checkMigrationStatus = async () => {
     try {
-      const response = await api.migrate.status()
-      if (response.success && response.data) {
-        setMigrationStatus(response.data)
-      }
+      // Migration API has been removed, set default status
+      setMigrationStatus({
+        hasCheckIns: false,
+        checkInCount: 0,
+        needsMigration: true
+      })
     } catch (error) {
       console.error('检查迁移状态失败:', error)
     }

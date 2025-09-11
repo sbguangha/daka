@@ -5,10 +5,10 @@ import { useSession } from "next-auth/react"
 import { useSeparatedAppStore } from "@/store/separated-app-store"
 import { DataSourceIndicator, DataSourceStatusBar, NetworkStatusIndicator } from "@/components/ui/data-source-indicator"
 import { DataMigrationModal, LocalDataRiskToast } from "@/components/modals/data-migration-modal"
-import { TimesheetGrid } from "@/components/timesheet/timesheet-grid"
-import { TimesheetHeader } from "@/components/timesheet/timesheet-header"
-import { TimesheetStats } from "@/components/timesheet/timesheet-stats"
-import { AddTaskModal } from "@/components/modals/add-task-modal"
+import { HabitGrid } from "@/components/timesheet/habit-grid"
+import { DateHeader } from "@/components/timesheet/date-header"
+import { StatsPanel } from "@/components/timesheet/stats-panel"
+import { AddHabitModal } from "@/components/timesheet/add-habit-modal"
 import { Loader2 } from "lucide-react"
 
 export function SeparatedTimesheetClient() {
@@ -195,27 +195,17 @@ export function SeparatedTimesheetClient() {
 
         {/* 主要内容 */}
         <div className="space-y-6">
-          <TimesheetHeader 
-            progress={progress}
-            onAddTask={() => setShowAddModal(true)}
-          />
+          <DateHeader />
           
-          <TimesheetStats 
-            tasks={tasks}
-            progress={progress}
-          />
+          <StatsPanel />
           
-          <TimesheetGrid 
-            taskGroups={tasks}
-            onToggleTask={toggleTask}
-            isLoading={isLoading}
-          />
+          <HabitGrid />
         </div>
       </div>
 
       {/* 模态框 */}
       {showAddModal && (
-        <AddTaskModal
+        <AddHabitModal
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
         />

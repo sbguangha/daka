@@ -280,6 +280,49 @@ export const taskData = {
   async findById(taskId: string): Promise<Task | null> {
     const row = await executeQuerySingle(taskQueries.findById, [taskId])
     return row || null
+  },
+
+  // 创建新任务
+  async create(data: {
+    userId: string;
+    title: string;
+    description?: string;
+    category?: string;
+  }): Promise<Task> {
+    // 如果没有指定分类，使用默认任务组
+    let taskGroupId = category;
+    
+    if (!taskGroupId) {
+      // 查找默认任务组
+      const defaultGroup = await executeQuerySingle(
+        'SELECT id FROM task_groups WHERE "isDefault" = true AND "isActive" = true LIMIT 1'
+      );
+      
+      if (!defaultGroup) {
+        throw new Error('未找到默认任务组');
+      }
+      
+      taskGroupId = defaultGroup.id;
+    }
+
+    const row = await executeQuerySingle(
+      taskQueries.create,
+      [data.title, data.description || null, '📝', taskGroupId]
+    );
+
+    if (!row) {
+      throw new Error('创建任务失败');
+    }
+
+    return {
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      icon: row.icon,
+      order: row.order,
+      isActive: row.isActive,
+      taskGroupId: row.taskGroupId
+    };
   }
 }
 

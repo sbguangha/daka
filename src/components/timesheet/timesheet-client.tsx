@@ -75,7 +75,7 @@ export function TimesheetClient() {
     };
 
     initializeData();
-  }, []); // 空依赖数组，只在挂载时执行一次
+  }, [isAuthenticated, loadStoredData, loadTasksFromAPI, syncWithAPI]); // 添加缺失的依赖
 
   // 页面可见性变化时刷新数据
   useEffect(() => {
