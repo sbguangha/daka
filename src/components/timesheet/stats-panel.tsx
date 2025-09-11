@@ -8,7 +8,7 @@ export function StatsPanel() {
   const { timesheetData, getHabitStats } = useAppStore();
   const [isHabitStatsCollapsed, setIsHabitStatsCollapsed] = useState(false);
 
-  // 计算总体统计
+  // Calculate overall statistics
   const getTotalStats = () => {
     if (timesheetData.habits.length === 0) {
       return { currentStreak: 0, longestStreak: 0, totalCount: 0 };
@@ -86,69 +86,84 @@ export function StatsPanel() {
           </div>
 
           {!isHabitStatsCollapsed && (
-            <div className="flex-1 overflow-y-auto px-4 pb-4">
-              <div className="grid grid-cols-2 gap-2">
-                {timesheetData.habits.map((habit) => {
-                  const stats = getHabitStats(habit.id);
-                  const completionRate = Math.round((stats.totalCount / 20) * 100);
+            <div className="px-4 pb-4">
+              {/* 固定高度容器，最多显示4个卡片（2行 x 2列），超出则滚动 */}
+              <div 
+                className="overflow-y-auto custom-scrollbar"
+                style={{ 
+                  maxHeight: timesheetData.habits.length > 4 ? '280px' : 'auto' 
+                }}
+              >
+                <div className="grid grid-cols-2 gap-2">
+                  {timesheetData.habits.map((habit) => {
+                    const stats = getHabitStats(habit.id);
+                    const completionRate = Math.round((stats.totalCount / 20) * 100);
 
-                  return (
-                    <div
-                      key={habit.id}
-                      className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md transition-all duration-200 cursor-pointer group"
-                      title={`${habit.name}: ${stats.totalCount}/20 completed, ${stats.currentStreak} day streak`}
-                    >
-                      {/* Header with color indicator and streak */}
-                      <div className="flex items-center justify-between mb-2">
-                        <div
-                          className="w-3 h-3 rounded-full shadow-sm"
-                          style={{ backgroundColor: habit.color }}
-                        />
-                        {stats.currentStreak > 0 && (
-                          <div className="flex items-center">
-                            <Flame className="w-3 h-3 text-orange-500" />
-                            <span className="text-xs font-medium text-orange-600 dark:text-orange-400 ml-0.5">
-                              {stats.currentStreak}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                    return (
+                      <div
+                        key={habit.id}
+                        className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-lg p-3 hover:shadow-md transition-all duration-200 cursor-pointer group"
+                        title={`${habit.name}: ${stats.totalCount}/20 completed, ${stats.currentStreak} day streak`}
+                      >
+                        {/* Header with color indicator and streak */}
+                        <div className="flex items-center justify-between mb-2">
+                          <div
+                            className="w-3 h-3 rounded-full shadow-sm"
+                            style={{ backgroundColor: habit.color }}
+                          />
+                          {stats.currentStreak > 0 && (
+                            <div className="flex items-center">
+                              <Flame className="w-3 h-3 text-orange-500" />
+                              <span className="text-xs font-medium text-orange-600 dark:text-orange-400 ml-0.5">
+                                {stats.currentStreak}
+                              </span>
+                            </div>
+                          )}
+                        </div>
 
-                      {/* Habit name */}
-                      <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate mb-2">
-                        {habit.name}
-                      </div>
+                        {/* Habit name */}
+                        <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate mb-2">
+                          {habit.name}
+                        </div>
 
-                      {/* Progress info */}
-                      <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                        {stats.totalCount}/20
-                      </div>
+                        {/* Progress info */}
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                          {stats.totalCount}/20
+                        </div>
 
-                      {/* Progress bar */}
-                      <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5 mb-2">
-                        <div
-                          className="h-1.5 rounded-full transition-all duration-300"
-                          style={{
-                            backgroundColor: habit.color,
-                            width: `${completionRate}%`,
-                            opacity: 0.8
-                          }}
-                        />
-                      </div>
+                        {/* Progress bar */}
+                        <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5 mb-2">
+                          <div
+                            className="h-1.5 rounded-full transition-all duration-300"
+                            style={{
+                              backgroundColor: habit.color,
+                              width: `${completionRate}%`,
+                              opacity: 0.8
+                            }}
+                          />
+                        </div>
 
-                      {/* Stats row */}
-                      <div className="flex justify-between text-xs">
-                        <span className="font-medium text-gray-700 dark:text-gray-300">
-                          {completionRate}%
-                        </span>
-                        <span className="text-gray-500 dark:text-gray-400">
-                          L: {stats.longestStreak}
-                        </span>
+                        {/* Stats row */}
+                        <div className="flex justify-between text-xs">
+                          <span className="font-medium text-gray-700 dark:text-gray-300">
+                            {completionRate}%
+                          </span>
+                          <span className="text-gray-500 dark:text-gray-400">
+                            L: {stats.longestStreak}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
+              
+              {/* 滚动提示 - 当习惯数量超过4个时显示 */}
+              {timesheetData.habits.length > 4 && (
+                <div className="text-xs text-gray-400 dark:text-gray-500 text-center mt-2 opacity-75">
+                  Scroll to view more habits ({timesheetData.habits.length} total)
+                </div>
+              )}
             </div>
           )}
 

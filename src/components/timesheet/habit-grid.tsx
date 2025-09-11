@@ -92,7 +92,7 @@ export function HabitGrid() {
             </svg>
           </div>
           <p className="text-gray-500 dark:text-gray-400 text-sm">
-            还没有习惯，点击左侧 "New Habit" 开始添加
+            No habits yet, click "New Habit" on the left to get started
           </p>
         </div>
       </div>

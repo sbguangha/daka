@@ -1,6 +1,9 @@
 import { create } from 'zustand';
+import { storageManager } from '@/utils/storage';
+import { api } from '@/lib/api-client';
+import type { AuthUser } from '@/types/auth';
 
-// 简化的任务接口
+// Simplified task interface
 export interface Task {
   id: string;
   name: string;
@@ -14,12 +17,12 @@ export interface TaskGroup {
   tasks: Task[];
 }
 
-// 打卡记录按日期存储
+// Check-in records stored by date
 export interface DailyCheckIns {
   [taskId: string]: boolean;
 }
 
-// Timesheet 习惯接口
+// Timesheet habit interface
 export interface Habit {
   id: string;
   name: string;
@@ -29,42 +32,60 @@ export interface Habit {
   order: number;
 }
 
-// Timesheet 打卡记录
+// Timesheet check-in record
 export interface HabitRecord {
   habitId: string;
   date: string; // YYYY-MM-DD
   completed: boolean;
-  completionLevel?: number; // 0-100 完成度
+  completionLevel?: number; // 0-100 completion level
 }
 
-// Timesheet 数据
+// Timesheet data
 export interface TimesheetData {
   habits: Habit[];
   records: HabitRecord[];
 }
 
 export interface AppState {
-  // 当前显示日期
+  // Current display date
   currentDate: Date;
 
-  // 任务组数据
+  // Task group data
   taskGroups: TaskGroup[];
 
-  // 打卡记录 - 按日期存储
-  checkInHistory: Record<string, DailyCheckIns>; // 格式: { "2025-01-05": { "task1": true, "task2": false } }
+  // Check-in records - stored by date
+  checkInHistory: Record<string, DailyCheckIns>; // Format: { "2025-01-05": { "task1": true, "task2": false } }
 
-  // 连续打卡天数
+  // Consecutive check-in days
   streak: number;
 
-  // Timesheet 相关状态
+  // Timesheet related state
   timesheetData: TimesheetData;
+
+  // Authentication state
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+
+  // Loading states
+  isLoading: boolean;
+  isLoadingTasks: boolean;
 
   // Actions
   setCurrentDate: (date: Date) => void;
   setTaskGroups: (taskGroups: TaskGroup[]) => void;
-  toggleTask: (groupId: string, taskId: string) => void;
+  toggleTask: (groupId: string, taskId: string) => Promise<void>;
   getCurrentDateTasks: () => TaskGroup[];
   getTodayProgress: () => { completed: number; total: number; percentage: number };
+
+  // API Actions
+  loadTasksFromAPI: () => Promise<void>;
+  loadCheckInsFromAPI: (startDate?: string, endDate?: string) => Promise<void>;
+  syncWithAPI: () => Promise<void>;
+  migrateLocalDataToAPI: (overwrite?: boolean) => Promise<boolean>;
+
+  // Auth Actions
+  setUser: (user: AuthUser | null) => void;
+  clearUser: () => void;
 
   // Timesheet Actions
   addHabit: (name: string, color?: string) => void;
@@ -73,84 +94,85 @@ export interface AppState {
   getHabitRecords: (habitId: string, startDate: string, endDate: string) => HabitRecord[];
   getHabitStats: (habitId: string) => { currentStreak: number; longestStreak: number; totalCount: number };
   clearTimesheetData: () => void;
+  loadStoredData: () => Promise<void>;
+  exportData: () => string;
+  importData: (jsonData: string) => Promise<boolean>;
 
-  // 工具函数
+  // Utility functions
   formatDateKey: (date: Date) => string;
 }
 
-// 默认任务数据
+// Default task data
 const defaultTaskGroups: TaskGroup[] = [
   {
     id: '1',
-    title: '身体是革命的本钱',
+    title: 'Health & Fitness',
     theme: 'bg-gradient-to-r from-blue-500 to-purple-600 text-white',
     tasks: [
-      { id: '1', name: '哑铃', completed: false },
-      { id: '2', name: '踮脚跟', completed: false },
-      { id: '3', name: '身体拉升', completed: false },
+      { id: '1', name: 'Dumbbell Exercise', completed: false },
+      { id: '2', name: 'Calf Raises', completed: false },
+      { id: '3', name: 'Body Stretching', completed: false },
     ],
   },
   {
     id: '2',
-    title: '月入万刀，加油！',
+    title: 'Career & Growth',
     theme: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white',
     tasks: [
-      { id: '4', name: '看知识星球', completed: false },
-      { id: '5', name: '看哥飞社群', completed: false },
-      { id: '6', name: '实操建站', completed: false },
+      { id: '4', name: 'Read Knowledge Community', completed: false },
+      { id: '5', name: 'Check Developer Groups', completed: false },
+      { id: '6', name: 'Practice Web Development', completed: false },
     ],
   },
   {
     id: '3',
-    title: '明心净心',
+    title: 'Mind & Spirit',
     theme: 'bg-gradient-to-r from-amber-500 to-orange-600 text-white',
     tasks: [
-      { id: '7', name: '阅读', completed: false },
+      { id: '7', name: 'Reading', completed: false },
     ],
   },
 ];
 
-// 从 localStorage 加载数据
-const loadFromStorage = () => {
+// Load data using storage manager
+const loadFromStorage = async (): Promise<TimesheetData | null> => {
   if (typeof window === 'undefined') return null;
 
   try {
-    const stored = localStorage.getItem('timesheet-data');
-    return stored ? JSON.parse(stored) : null;
+    return await storageManager.loadData();
   } catch (error) {
-    console.error('Failed to load from localStorage:', error);
+    console.error('Failed to load from storage:', error);
     return null;
   }
 };
 
-// 保存到 localStorage
-const saveToStorage = (data: TimesheetData) => {
+// Save to storage using storage manager
+const saveToStorage = async (data: TimesheetData) => {
   if (typeof window === 'undefined') return;
 
   try {
-    localStorage.setItem('timesheet-data', JSON.stringify(data));
+    await storageManager.saveData(data);
   } catch (error) {
-    console.error('Failed to save to localStorage:', error);
+    console.error('Failed to save to storage:', error);
   }
 };
 
-// 初始化 Timesheet 数据
+// Initialize Timesheet data
 const initTimesheetData = (): TimesheetData => {
-  const stored = loadFromStorage();
-  if (stored) return stored;
+  // Return default data initially, will be loaded asynchronously
 
-  // 生成示例记录
+  // Generate sample records
   const generateSampleRecords = () => {
     const records: HabitRecord[] = [];
     const today = new Date();
 
-    // 为最近20天生成一些随机记录
+    // Generate some random records for the last 20 days
     for (let i = 19; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(today.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
 
-      // swim - 高完成率
+      // swim - high completion rate
       if (Math.random() > 0.1) {
         records.push({
           habitId: 'habit_1',
@@ -160,7 +182,7 @@ const initTimesheetData = (): TimesheetData => {
         });
       }
 
-      // play computer game - 中等完成率，有不同的完成度
+      // play computer game - medium completion rate, with different completion levels
       if (Math.random() > 0.3) {
         const levels = [25, 50, 75, 100];
         records.push({
@@ -171,7 +193,7 @@ const initTimesheetData = (): TimesheetData => {
         });
       }
 
-      // football and basketball - 较低完成率
+      // football and basketball - lower completion rate
       if (Math.random() > 0.5) {
         records.push({
           habitId: 'habit_3',
@@ -185,7 +207,7 @@ const initTimesheetData = (): TimesheetData => {
     return records;
   };
 
-  // 默认示例数据
+  // Default sample data
   return {
     habits: [
       {
@@ -218,16 +240,24 @@ const initTimesheetData = (): TimesheetData => {
 };
 
 export const useAppStore = create<AppState>()((set, get) => ({
-  // 初始状态
+  // Initial state
   currentDate: new Date(),
   taskGroups: defaultTaskGroups,
   checkInHistory: {},
   streak: 7,
   timesheetData: initTimesheetData(),
 
-  // 工具函数
+  // Auth state
+  user: null,
+  isAuthenticated: false,
+
+  // Loading states
+  isLoading: false,
+  isLoadingTasks: false,
+
+  // Utility functions
   formatDateKey: (date: Date) => {
-    return date.toISOString().split('T')[0]; // 格式: "2025-01-05"
+    return date.toISOString().split('T')[0]; // Format: "2025-01-05"
   },
 
   // Actions
@@ -239,27 +269,75 @@ export const useAppStore = create<AppState>()((set, get) => ({
     set({ taskGroups });
   },
 
-  toggleTask: (groupId: string, taskId: string) => {
-    const { currentDate, checkInHistory, formatDateKey } = get();
+  toggleTask: async (groupId: string, taskId: string) => {
+    const { currentDate, formatDateKey, isAuthenticated, user } = get();
     const dateKey = formatDateKey(currentDate);
 
-    set((state) => {
-      // 获取当前日期的打卡记录
-      const currentDayCheckIns = state.checkInHistory[dateKey] || {};
+    // 如果用户已登录，使用API
+    if (isAuthenticated && user) {
+      try {
+        set({ isLoading: true });
 
-      // 切换任务状态
-      const newCheckIns = {
-        ...currentDayCheckIns,
-        [taskId]: !currentDayCheckIns[taskId]
-      };
+        // 调用API切换打卡状态
+        const response = await api.checkIns.toggle(taskId, dateKey);
 
-      return {
-        checkInHistory: {
-          ...state.checkInHistory,
-          [dateKey]: newCheckIns
+        if (response.success && response.data) {
+          // 更新本地状态
+          set((state) => {
+            const currentDayCheckIns = state.checkInHistory[dateKey] || {};
+            const newCheckIns = {
+              ...currentDayCheckIns,
+              [taskId]: response.data!.action === 'checked'
+            };
+
+            return {
+              checkInHistory: {
+                ...state.checkInHistory,
+                [dateKey]: newCheckIns
+              }
+            };
+          });
+
+          // 打卡成功后同步数据，确保其他设备能看到最新状态
+          setTimeout(async () => {
+            try {
+              console.log('🔄 打卡成功，开始同步数据...');
+              await get().loadTasksFromAPI(); // 重新加载任务状态
+              console.log('✅ 打卡后数据同步完成');
+            } catch (syncError) {
+              console.error('❌ 打卡后同步数据失败:', syncError);
+            }
+          }, 300); // 减少延迟，提高响应速度
         }
-      };
-    });
+      } catch (error) {
+        console.error('API打卡失败，回退到本地存储:', error);
+        // 如果API失败，回退到本地存储
+        toggleTaskLocal(taskId, dateKey);
+      } finally {
+        set({ isLoading: false });
+      }
+    } else {
+      // 用户未登录，使用本地存储
+      toggleTaskLocal(taskId, dateKey);
+    }
+
+    // 本地切换函数
+    function toggleTaskLocal(taskId: string, dateKey: string) {
+      set((state) => {
+        const currentDayCheckIns = state.checkInHistory[dateKey] || {};
+        const newCheckIns = {
+          ...currentDayCheckIns,
+          [taskId]: !currentDayCheckIns[taskId]
+        };
+
+        return {
+          checkInHistory: {
+            ...state.checkInHistory,
+            [dateKey]: newCheckIns
+          }
+        };
+      });
+    }
   },
 
   getCurrentDateTasks: () => {
@@ -267,7 +345,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const dateKey = formatDateKey(currentDate);
     const currentDayCheckIns = checkInHistory[dateKey] || {};
 
-    // 返回带有当前日期完成状态的任务组
+    // Return task groups with current date completion status
     return taskGroups.map(group => ({
       ...group,
       tasks: group.tasks.map(task => ({
@@ -291,6 +369,180 @@ export const useAppStore = create<AppState>()((set, get) => ({
     };
   },
 
+  // API Actions
+  loadTasksFromAPI: async () => {
+    const { isAuthenticated, formatDateKey, currentDate } = get();
+
+    if (!isAuthenticated) return;
+
+    try {
+      set({ isLoadingTasks: true });
+
+      const dateKey = formatDateKey(currentDate);
+      const response = await api.tasks.get({
+        includeCheckIns: true,
+        date: dateKey
+      });
+
+      if (response.success && response.data) {
+        // 转换API类型到本地类型
+        const localTaskGroups = response.data.map(group => ({
+          ...group,
+          tasks: group.tasks.map(task => ({
+            ...task,
+            completed: task.completed || false
+          }))
+        }));
+        set({ taskGroups: localTaskGroups });
+      }
+    } catch (error) {
+      console.error('加载任务失败:', error);
+    } finally {
+      set({ isLoadingTasks: false });
+    }
+  },
+
+  loadCheckInsFromAPI: async (startDate?: string, endDate?: string, mergeWithLocal = true) => {
+    const { isAuthenticated, formatDateKey, checkInHistory } = get();
+
+    if (!isAuthenticated) return;
+
+    try {
+      set({ isLoading: true });
+
+      const response = await api.checkIns.get({
+        startDate,
+        endDate
+      });
+
+      if (response.success && response.data) {
+        // 转换API数据为本地格式
+        const serverCheckInHistory: Record<string, DailyCheckIns> = {};
+
+        response.data.forEach((checkIn: any) => {
+          const dateKey = checkIn.date.split('T')[0]; // 提取日期部分
+          if (!serverCheckInHistory[dateKey]) {
+            serverCheckInHistory[dateKey] = {};
+          }
+          serverCheckInHistory[dateKey][checkIn.taskId] = true;
+        });
+
+        // 如果需要合并本地数据，则合并而不是覆盖
+        if (mergeWithLocal) {
+          const mergedHistory = { ...checkInHistory };
+
+          // 合并服务器数据到本地数据
+          Object.keys(serverCheckInHistory).forEach(dateKey => {
+            if (!mergedHistory[dateKey]) {
+              mergedHistory[dateKey] = {};
+            }
+            mergedHistory[dateKey] = {
+              ...mergedHistory[dateKey],
+              ...serverCheckInHistory[dateKey]
+            };
+          });
+
+          set({ checkInHistory: mergedHistory });
+        } else {
+          // 直接使用服务器数据（用于初始加载）
+          set({ checkInHistory: serverCheckInHistory });
+        }
+      }
+    } catch (error) {
+      console.error('加载打卡记录失败:', error);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  syncWithAPI: async (autoMigrate = false) => {
+    const { isAuthenticated, checkInHistory } = get();
+
+    if (!isAuthenticated) return;
+
+    try {
+      set({ isLoading: true });
+
+      // 如果需要自动迁移且有本地数据，先迁移本地数据
+      if (autoMigrate && Object.keys(checkInHistory).length > 0) {
+        console.log('🔄 检测到本地数据，开始自动迁移...');
+        const migrationResult = await get().migrateLocalDataToAPI();
+
+        if (migrationResult.success) {
+          console.log(`✅ 自动迁移成功，迁移了 ${migrationResult.migratedCount} 条记录`);
+        } else {
+          console.warn('⚠️ 自动迁移失败，将加载服务器数据');
+        }
+      }
+
+      // 并行加载任务和打卡记录
+      await Promise.all([
+        get().loadTasksFromAPI(),
+        get().loadCheckInsFromAPI(undefined, undefined, !autoMigrate) // 如果刚迁移过，不再合并本地数据
+      ]);
+
+    } catch (error) {
+      console.error('同步数据失败:', error);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  migrateLocalDataToAPI: async (overwrite = false) => {
+    const { isAuthenticated, checkInHistory, timesheetData } = get();
+
+    if (!isAuthenticated) {
+      console.warn('用户未登录，无法迁移数据');
+      return false;
+    }
+
+    console.log('🔄 开始迁移本地数据到服务器...');
+    console.log('本地打卡记录:', checkInHistory);
+
+    try {
+      set({ isLoading: true });
+
+      let migratedCount = 0;
+      const errors: string[] = [];
+
+      // 迁移打卡记录
+      for (const [dateKey, dailyCheckIns] of Object.entries(checkInHistory)) {
+        for (const [taskId, isChecked] of Object.entries(dailyCheckIns)) {
+          if (isChecked) {
+            try {
+              const response = await api.checkIns.toggle(taskId, dateKey);
+              if (response.success) {
+                migratedCount++;
+                console.log(`✅ 迁移打卡记录: ${dateKey} - 任务${taskId}`);
+              } else {
+                errors.push(`${dateKey}-${taskId}: ${response.error}`);
+              }
+            } catch (error) {
+              errors.push(`${dateKey}-${taskId}: ${error}`);
+              console.error(`❌ 迁移失败: ${dateKey} - 任务${taskId}`, error);
+            }
+          }
+        }
+      }
+
+      console.log(`🎉 数据迁移完成！成功迁移 ${migratedCount} 条打卡记录`);
+
+      if (errors.length > 0) {
+        console.warn(`⚠️ 有 ${errors.length} 条记录迁移失败:`, errors);
+      }
+
+      // 迁移成功后重新从服务器加载数据（不合并本地数据）
+      await get().loadCheckInsFromAPI(undefined, undefined, false);
+
+      return { success: true, migratedCount, errors };
+    } catch (error) {
+      console.error('数据迁移失败:', error);
+      return { success: false, error: error.message };
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   // Timesheet Actions
   addHabit: (name: string, color?: string) => {
     const newHabit: Habit = {
@@ -308,7 +560,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
         habits: [...state.timesheetData.habits, newHabit]
       };
 
-      // 保存到 localStorage
+      // Save to localStorage
       saveToStorage(newTimesheetData);
 
       return { timesheetData: newTimesheetData };
@@ -322,7 +574,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
         records: state.timesheetData.records.filter(r => r.habitId !== habitId)
       };
 
-      // 保存到 localStorage
+      // Save to localStorage
       saveToStorage(newTimesheetData);
 
       return { timesheetData: newTimesheetData };
@@ -338,7 +590,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
       let newTimesheetData: TimesheetData;
 
       if (existingRecord) {
-        // 切换完成状态
+        // Toggle completion status
         newTimesheetData = {
           ...state.timesheetData,
           records: state.timesheetData.records.map(r =>
@@ -348,7 +600,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
           )
         };
       } else {
-        // 创建新记录
+        // Create new record
         const newRecord: HabitRecord = {
           habitId,
           date,
@@ -362,11 +614,25 @@ export const useAppStore = create<AppState>()((set, get) => ({
         };
       }
 
-      // 保存到 localStorage
+      // Save to localStorage
       saveToStorage(newTimesheetData);
 
       return { timesheetData: newTimesheetData };
     });
+
+    // 习惯打卡后同步数据，确保其他设备能看到最新状态
+    const { isAuthenticated } = get();
+    if (isAuthenticated) {
+      setTimeout(async () => {
+        try {
+          console.log('🔄 习惯打卡成功，开始同步数据...');
+          await get().syncWithAPI();
+          console.log('✅ 习惯打卡后数据同步完成');
+        } catch (syncError) {
+          console.error('❌ 习惯打卡后同步数据失败:', syncError);
+        }
+      }, 300);
+    }
   },
 
   getHabitRecords: (habitId: string, startDate: string, endDate: string) => {
@@ -387,11 +653,11 @@ export const useAppStore = create<AppState>()((set, get) => ({
     let tempStreak = 0;
     const totalCount = records.length;
 
-    // 计算连续天数
+    // Calculate consecutive days
     const today = new Date().toISOString().split('T')[0];
     let checkDate = new Date(today);
 
-    // 计算当前连续天数
+    // Calculate current consecutive days
     while (checkDate >= new Date(records[0]?.date || today)) {
       const dateStr = checkDate.toISOString().split('T')[0];
       const hasRecord = records.some(r => r.date === dateStr);
@@ -405,7 +671,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
       checkDate.setDate(checkDate.getDate() - 1);
     }
 
-    // 计算最长连续天数
+    // Calculate longest consecutive days
     for (let i = 0; i < records.length; i++) {
       if (i === 0 ||
           new Date(records[i].date).getTime() - new Date(records[i-1].date).getTime() === 24 * 60 * 60 * 1000) {
@@ -423,5 +689,72 @@ export const useAppStore = create<AppState>()((set, get) => ({
     const emptyData: TimesheetData = { habits: [], records: [] };
     saveToStorage(emptyData);
     set({ timesheetData: emptyData });
+  },
+
+  // Load stored data asynchronously
+  loadStoredData: async () => {
+    try {
+      const storedData = await loadFromStorage();
+      if (storedData) {
+        set({ timesheetData: storedData });
+      }
+    } catch (error) {
+      console.error('Failed to load stored data:', error);
+    }
+  },
+
+  // Export data for backup
+  exportData: () => {
+    return storageManager.exportData();
+  },
+
+  // Import data from backup
+  importData: async (jsonData: string) => {
+    try {
+      const success = await storageManager.importData(jsonData);
+      if (success) {
+        // Reload data after import
+        const storedData = await loadFromStorage();
+        if (storedData) {
+          set({ timesheetData: storedData });
+        }
+      }
+      return success;
+    } catch (error) {
+      console.error('Failed to import data:', error);
+      return false;
+    }
+  },
+
+  // Auth Actions
+  setUser: (user: AuthUser | null) => {
+    set({
+      user,
+      isAuthenticated: !!user
+    });
+
+    // 用户登录后自动同步数据
+    if (user) {
+      console.log('🔄 用户已登录，开始自动同步数据...');
+      setTimeout(async () => {
+        try {
+          console.log('🔄 用户登录，开始同步数据并迁移本地打卡记录...');
+          await get().syncWithAPI(true); // 启用自动迁移
+          console.log('✅ 用户登录后数据同步完成');
+        } catch (error) {
+          console.error('❌ 用户登录后同步数据失败:', error);
+        }
+      }, 500); // 延迟500ms确保用户状态已更新
+    }
+  },
+
+  clearUser: () => {
+    set({
+      user: null,
+      isAuthenticated: false,
+      // 清除用户相关的数据
+      checkInHistory: {},
+      streak: 0
+    });
   },
 }));

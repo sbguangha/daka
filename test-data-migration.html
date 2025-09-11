@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据迁移测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .step-number {
+            background: #007bff;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            color: #17a2b8;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 数据迁移测试工具</h1>
+        <p>这个工具帮助你测试跨浏览器打卡记录同步功能</p>
+
+        <div class="step">
+            <h3><span class="step-number">1</span>准备测试数据</h3>
+            <p>在未登录状态下创建一些本地打卡记录</p>
+            <button class="button" onclick="createTestData()">创建测试打卡记录</button>
+            <button class="button" onclick="showLocalData()">查看本地数据</button>
+            <div id="localDataLog" class="log" style="display: none;"></div>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-number">2</span>登录测试</h3>
+            <p>登录Google账号，观察数据迁移过程</p>
+            <button class="button" onclick="openApp()">打开应用</button>
+            <p class="info">💡 打开应用后，登录Google账号，观察控制台日志</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-number">3</span>跨浏览器测试</h3>
+            <p>在另一个浏览器中登录相同账号，验证数据同步</p>
+            <button class="button" onclick="openInNewBrowser()">在新浏览器中测试</button>
+            <p class="info">💡 在不同浏览器中登录相同Google账号，检查打卡记录是否同步</p>
+        </div>
+
+        <div class="step">
+            <h3><span class="step-number">4</span>验证结果</h3>
+            <p>检查数据库中的记录</p>
+            <button class="button" onclick="checkDatabase()">检查数据库</button>
+            <div id="dbLog" class="log" style="display: none;"></div>
+        </div>
+
+        <div id="testLog" class="log"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('testLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            logElement.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function createTestData() {
+            try {
+                // 模拟创建一些本地打卡记录
+                const testData = {
+                    '2025-09-10': {
+                        '1': true,  // 任务1已打卡
+                        '2': true,  // 任务2已打卡
+                    },
+                    '2025-09-09': {
+                        '1': true,  // 任务1已打卡
+                        '3': true,  // 任务3已打卡
+                    }
+                };
+
+                localStorage.setItem('test-checkin-history', JSON.stringify(testData));
+                log('✅ 测试打卡记录已创建', 'success');
+                log(`📊 创建了 ${Object.keys(testData).length} 天的打卡记录`, 'info');
+                
+                showLocalData();
+            } catch (error) {
+                log(`❌ 创建测试数据失败: ${error.message}`, 'error');
+            }
+        }
+
+        function showLocalData() {
+            try {
+                const data = localStorage.getItem('test-checkin-history');
+                const logElement = document.getElementById('localDataLog');
+                
+                if (data) {
+                    logElement.textContent = JSON.stringify(JSON.parse(data), null, 2);
+                    logElement.style.display = 'block';
+                    log('📋 本地数据已显示', 'info');
+                } else {
+                    logElement.textContent = '没有找到本地测试数据';
+                    logElement.style.display = 'block';
+                    log('⚠️ 没有找到本地测试数据', 'error');
+                }
+            } catch (error) {
+                log(`❌ 读取本地数据失败: ${error.message}`, 'error');
+            }
+        }
+
+        function openApp() {
+            window.open('http://localhost:3001', '_blank');
+            log('🚀 应用已在新标签页中打开', 'success');
+            log('💡 请在新标签页中登录Google账号，观察控制台日志', 'info');
+        }
+
+        function openInNewBrowser() {
+            const url = 'http://localhost:3001';
+            navigator.clipboard.writeText(url).then(() => {
+                log('📋 应用URL已复制到剪贴板', 'success');
+                log('💡 请在另一个浏览器中粘贴URL并登录相同的Google账号', 'info');
+            }).catch(() => {
+                log(`🔗 请手动复制此URL到另一个浏览器: ${url}`, 'info');
+            });
+        }
+
+        async function checkDatabase() {
+            try {
+                log('🔍 正在检查数据库...', 'info');
+                
+                const response = await fetch('http://localhost:3001/api/checkins');
+                const result = await response.json();
+                
+                const logElement = document.getElementById('dbLog');
+                logElement.textContent = JSON.stringify(result, null, 2);
+                logElement.style.display = 'block';
+                
+                if (result.success) {
+                    log(`✅ 数据库查询成功，找到 ${result.data.length} 条打卡记录`, 'success');
+                } else {
+                    log(`❌ 数据库查询失败: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ 检查数据库失败: ${error.message}`, 'error');
+                log('💡 请确保已登录并且服务器正在运行', 'info');
+            }
+        }
+
+        // 页面加载时的初始化
+        window.onload = function() {
+            log('🧪 数据迁移测试工具已加载', 'success');
+            log('📝 请按照步骤进行测试', 'info');
+        };
+    </script>
+</body>
+</html>

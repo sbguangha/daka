@@ -8,7 +8,7 @@ export function DateHeader() {
   const { clearTimesheetData } = useAppStore();
   const settingsRef = useRef<HTMLDivElement>(null);
 
-  // 点击外部关闭设置菜单
+  // Click outside to close settings menu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
@@ -25,7 +25,7 @@ export function DateHeader() {
     };
   }, [showSettings]);
 
-  // 生成最近20天的日期
+  // Generate dates for the last 20 days
   const dates = useMemo(() => {
     const today = new Date();
     const dateList = [];
@@ -82,14 +82,14 @@ export function DateHeader() {
                 <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
                   <button
                     onClick={() => {
-                      if (confirm('确定要清除所有习惯和记录吗？此操作不可撤销。')) {
+                      if (confirm('Are you sure you want to clear all habits and records? This action cannot be undone.')) {
                         clearTimesheetData();
                         setShowSettings(false);
                       }
                     }}
                     className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg"
                   >
-                    清除所有数据
+                    Clear All Data
                   </button>
                 </div>
               )}

@@ -4,10 +4,10 @@ const nextConfig = {
     domains: ['github.com', 'avatars.githubusercontent.com'],
   },
   env: {
-    NEXT_PUBLIC_APP_NAME: '每日打卡',
+    NEXT_PUBLIC_APP_NAME: 'Habit Tracker',
     NEXT_PUBLIC_APP_VERSION: '2.0.0',
   },
-  // Vercel 部署优化
+  // Vercel deployment optimization
   async headers() {
     return [
       {
@@ -29,7 +29,7 @@ const nextConfig = {
       },
     ];
   },
-  // PWA 支持
+  // PWA support
   async rewrites() {
     return [
       {
