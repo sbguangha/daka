@@ -367,8 +367,8 @@ export const useSeparatedAppStore = create<SeparatedAppStore>((set, get) => ({
 
     // 检查缓存是否有效
     if (!forceRefresh) {
-      const cachedTasks = cloudCache.get(tasksCacheKey)
-      const cachedCheckIns = cloudCache.get(checkInsCacheKey)
+      const cachedTasks = cloudCache.get(tasksCacheKey) as TaskGroup[]
+      const cachedCheckIns = cloudCache.get(checkInsCacheKey) as CheckInHistory
 
       if (cachedTasks && cachedCheckIns) {
         console.log('✅ 使用云端数据缓存')

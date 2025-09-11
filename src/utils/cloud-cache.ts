@@ -108,11 +108,11 @@ export class CloudCacheManager {
     // 支持通配符模式
     const regex = new RegExp(keyPattern.replace(/\*/g, '.*'))
     
-    for (const [key] of this.memoryCache) {
+    this.memoryCache.forEach((_, key) => {
       if (regex.test(key)) {
         this.delete(key)
       }
-    }
+    })
   }
 
   // 获取缓存统计信息
@@ -122,7 +122,7 @@ export class CloudCacheManager {
     let expiredCount = 0
     let totalSize = 0
 
-    for (const [key, entry] of this.memoryCache) {
+    this.memoryCache.forEach((entry, key) => {
       totalSize += JSON.stringify(entry.data).length
       
       if (now > entry.expiresAt) {
@@ -130,7 +130,7 @@ export class CloudCacheManager {
       } else {
         validCount++
       }
-    }
+    })
 
     return {
       totalEntries: this.memoryCache.size,
@@ -189,11 +189,11 @@ export class CloudCacheManager {
     const toDelete: string[] = []
 
     // 找出过期的条目
-    for (const [key, entry] of this.memoryCache) {
+    this.memoryCache.forEach((entry, key) => {
       if (now > entry.expiresAt) {
         toDelete.push(key)
       }
-    }
+    })
 
     // 删除过期条目
     toDelete.forEach(key => {

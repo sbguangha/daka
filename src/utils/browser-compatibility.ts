@@ -63,7 +63,7 @@ export function detectBrowserSupport(): BrowserSupport {
 
   // 检测 requestAnimationFrame 支持
   try {
-    if (typeof window !== 'undefined' && window.requestAnimationFrame) {
+    if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
       support.requestAnimationFrame = true;
     }
   } catch (e) {

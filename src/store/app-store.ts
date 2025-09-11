@@ -79,9 +79,9 @@ export interface AppState {
 
   // API Actions
   loadTasksFromAPI: () => Promise<void>;
-  loadCheckInsFromAPI: (startDate?: string, endDate?: string) => Promise<void>;
-  syncWithAPI: () => Promise<void>;
-  migrateLocalDataToAPI: (overwrite?: boolean) => Promise<boolean>;
+  loadCheckInsFromAPI: (startDate?: string, endDate?: string, mergeWithLocal?: boolean) => Promise<void>;
+  syncWithAPI: (autoMigrate?: boolean) => Promise<void>;
+  migrateLocalDataToAPI: (overwrite?: boolean) => Promise<false | { success: boolean; migratedCount: number; errors: string[] } | { success: boolean; error: any; migratedCount?: undefined; errors?: undefined }>;
 
   // Auth Actions
   setUser: (user: AuthUser | null) => void;
@@ -468,7 +468,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
         console.log('🔄 检测到本地数据，开始自动迁移...');
         const migrationResult = await get().migrateLocalDataToAPI();
 
-        if (migrationResult.success) {
+        if (migrationResult && typeof migrationResult === 'object' && migrationResult.success) {
           console.log(`✅ 自动迁移成功，迁移了 ${migrationResult.migratedCount} 条记录`);
         } else {
           console.warn('⚠️ 自动迁移失败，将加载服务器数据');
@@ -537,7 +537,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
       return { success: true, migratedCount, errors };
     } catch (error) {
       console.error('数据迁移失败:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : String(error) };
     } finally {
       set({ isLoading: false });
     }
