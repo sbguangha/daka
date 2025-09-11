@@ -290,7 +290,7 @@ export const taskData = {
     category?: string;
   }): Promise<Task> {
     // 如果没有指定分类，使用默认任务组
-    let taskGroupId = category;
+    let taskGroupId = data.category;
     
     if (!taskGroupId) {
       // 查找默认任务组
