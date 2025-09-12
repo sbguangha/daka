@@ -36,7 +36,7 @@ export function GoogleOneTap({
 
   const handleCredentialResponse = useCallback(async (response: any) => {
     try {
-      // 发送凭证到我们的API端点进行验证
+      // 发送凭证到我们的API端点进行验证和登录
       const res = await fetch("/api/auth/google-one-tap", {
         method: "POST",
         headers: {
@@ -47,17 +47,14 @@ export function GoogleOneTap({
         }),
       })
 
-      if (res.ok) {
-        // 验证成功后，使用NextAuth signIn
-        await signIn("google", {
-          callbackUrl: "/",
-          redirect: true,
-        })
+      const data = await res.json()
 
-        // 如果到达这里说明登录成功（redirect: true 时不会返回）
+      if (res.ok && data.success) {
         onSuccess?.(response)
+        // 刷新页面以更新认证状态
+        window.location.reload()
       } else {
-        throw new Error("One Tap verification failed")
+        throw new Error(data.error || "One Tap verification failed")
       }
     } catch (error) {
       console.error("Google One Tap sign in error:", error)
@@ -115,6 +112,7 @@ export function GoogleOneTap({
           auto_select: false,
           cancel_on_tap_outside: true,
           context: "signin",
+          use_fedcm_for_prompt: true, // 启用 FedCM 支持
         })
 
         // 显示 One Tap 提示

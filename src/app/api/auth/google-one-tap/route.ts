@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { OAuth2Client } from "google-auth-library"
+import { signIn } from "@/auth"
 
 const client = new OAuth2Client(process.env.AUTH_GOOGLE_ID)
 
@@ -29,9 +30,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 返回用户信息
+    // 使用验证后的用户信息创建会话
+    // 注意：这里需要与 NextAuth 的 Google provider 集成
+    // 由于 Google One Tap 和 NextAuth 的集成复杂性，
+    // 建议简化为直接重定向到 NextAuth 的 Google 登录
+    
     return NextResponse.json({
       success: true,
+      redirectUrl: "/api/auth/signin/google",
       user: {
         id: payload.sub,
         email: payload.email,
