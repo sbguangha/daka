@@ -10,7 +10,7 @@ export function AnalyticsTest() {
   useEffect(() => {
     // Check if Google Analytics is loaded
     const checkGA = () => {
-      if (typeof window !== 'undefined' && window.gtag) {
+      if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
         setGaLoaded(true);
       }
     };
