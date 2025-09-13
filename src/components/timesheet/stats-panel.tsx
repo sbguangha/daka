@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, Flame } from 'lucide-react';
 import { useAppStore } from '@/store/app-store';
 
-export function StatsPanel() {
+interface StatsPanelProps {
+  mobile?: boolean;
+}
+
+export function StatsPanel({ mobile = false }: StatsPanelProps) {
   const { timesheetData, getHabitStats } = useAppStore();
   const [isHabitStatsCollapsed, setIsHabitStatsCollapsed] = useState(false);
 
@@ -25,6 +29,41 @@ export function StatsPanel() {
 
   const totalStats = getTotalStats();
 
+  if (mobile) {
+    // Mobile layout - 水平排列的紧凑统计
+    return (
+      <div className="flex justify-around items-center py-2">
+        <div className="text-center">
+          <div className="text-lg font-bold text-green-600 dark:text-green-400">
+            {totalStats.currentStreak}
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            Current
+          </div>
+        </div>
+
+        <div className="text-center">
+          <div className="text-lg font-bold text-green-600 dark:text-green-400">
+            {totalStats.longestStreak}
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            Longest
+          </div>
+        </div>
+
+        <div className="text-center">
+          <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
+            {totalStats.totalCount}
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            Total
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop layout - 保持原有布局
   return (
     <div className="h-full flex flex-col">
       {/* Header */}

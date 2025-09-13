@@ -3,7 +3,11 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { useAppStore } from '@/store/app-store';
 
-export function DateHeader() {
+interface DateHeaderProps {
+  mobile?: boolean;
+}
+
+export function DateHeader({ mobile = false }: DateHeaderProps) {
   const [showSettings, setShowSettings] = useState(false);
   const { clearTimesheetData } = useAppStore();
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -61,6 +65,46 @@ export function DateHeader() {
     return day === 0 || day === 6; // Sunday or Saturday
   };
 
+  if (mobile) {
+    // Mobile layout - 只显示日期数字，简化设计
+    return (
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <table className="w-full table-fixed">
+          <tbody>
+            <tr>
+              {dates.map((date, index) => (
+                <td
+                  key={index}
+                  className={`p-2 text-center border-r border-gray-200 dark:border-gray-700 ${
+                    isWeekend(date) ? 'bg-gray-50 dark:bg-gray-800' : ''
+                  } ${
+                    isToday(date) ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                  }`}
+                  style={{ minWidth: '32px' }}
+                >
+                  <div className={`text-sm font-medium ${
+                    isToday(date)
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-gray-900 dark:text-gray-100'
+                  }`}>
+                    {isToday(date) ? (
+                      <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto text-sm">
+                        {formatDate(date)}
+                      </div>
+                    ) : (
+                      formatDate(date)
+                    )}
+                  </div>
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  // Desktop layout - 保持原有布局
   return (
     <div className="border-b border-gray-200 dark:border-gray-700">
       <div className="flex">

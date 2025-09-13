@@ -3,7 +3,11 @@
 import { useMemo } from 'react';
 import { useAppStore } from '@/store/app-store';
 
-export function HabitGrid() {
+interface HabitGridProps {
+  mobile?: boolean;
+}
+
+export function HabitGrid({ mobile = false }: HabitGridProps) {
   const { timesheetData, toggleHabitRecord } = useAppStore();
 
   // 生成最近20天的日期
@@ -99,6 +103,39 @@ export function HabitGrid() {
     );
   }
 
+  if (mobile) {
+    // Mobile layout - 紧凑的网格，与习惯名称行对齐，在统一滚动容器中
+    return (
+      <table className="w-full table-fixed">
+        <tbody>
+          {timesheetData.habits.map((habit) => (
+            <tr key={habit.id} className="border-b border-gray-100 dark:border-gray-700 last:border-b-0">
+              {dates.map((date) => (
+                <td
+                  key={`${habit.id}-${date}`}
+                  className={`h-8 p-1 cursor-pointer transition-colors ${
+                    isWeekend(date) ? 'bg-gray-50 dark:bg-gray-800' : ''
+                  } ${
+                    isToday(date) ? 'ring-1 ring-blue-400 ring-inset' : ''
+                  }`}
+                  style={{ minWidth: '32px' }}
+                >
+                  <div
+                    className={`w-full h-full rounded-sm ${getCellColor(habit.id, date)} transition-colors`}
+                    style={getCellStyle(habit.id, date)}
+                    onClick={() => handleCellClick(habit.id, date)}
+                    title={`${habit.name} - ${date}`}
+                  />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
+  // Desktop layout - 保持原有布局
   return (
     <div className="overflow-x-auto">
       <table className="w-full table-fixed">

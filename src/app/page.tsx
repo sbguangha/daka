@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/header';
 import { TimesheetClient } from '@/components/timesheet/timesheet-client';
 import { LandingPageContent } from '@/components/timesheet/landing-page-content';
 import { DataManager } from '@/components/timesheet/data-manager';
+import { AnalyticsTest } from '@/components/analytics/analytics-test';
 import { AuthWrapper } from '@/components/auth/auth-wrapper';
 import { MigrationModal } from '@/components/modals/migration-modal';
 import { useMigrationPrompt } from '@/hooks/use-migration-prompt';
@@ -80,6 +81,9 @@ export default function HomePage() {
 
         {/* Data Management */}
         <DataManager />
+
+        {/* Analytics Test (Development Only) */}
+        {process.env.NODE_ENV === 'development' && <AnalyticsTest />}
 
         {/* Migration Modal */}
         <MigrationModal

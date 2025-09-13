@@ -140,30 +140,69 @@ export function TimesheetClient() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-      {/* Date Header */}
-      <DateHeader />
-      
-      {/* Main Grid Layout */}
-      <div className="flex">
-        {/* Left: Habit List */}
-        <div className="w-64 border-r border-gray-200 dark:border-gray-700">
-          <HabitList onAddHabit={() => setShowAddModal(true)} />
+    <>
+      {/* Desktop Layout - 保持不变 */}
+      <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        {/* Date Header */}
+        <DateHeader />
+
+        {/* Main Grid Layout */}
+        <div className="flex">
+          {/* Left: Habit List */}
+          <div className="w-64 border-r border-gray-200 dark:border-gray-700">
+            <HabitList onAddHabit={() => setShowAddModal(true)} />
+          </div>
+
+          {/* Center: Habit Grid */}
+          <div className="flex-1">
+            <HabitGrid />
+          </div>
+
+          {/* Right: Stats Panel */}
+          <div className="w-48 border-l border-gray-200 dark:border-gray-700">
+            <StatsPanel />
+          </div>
         </div>
-        
-        {/* Center: Habit Grid */}
-        <div className="flex-1">
-          <HabitGrid />
-        </div>
-        
-        {/* Right: Stats Panel */}
-        <div className="w-48 border-l border-gray-200 dark:border-gray-700">
-          <StatsPanel />
-        </div>
+
+        {/* Bottom Stats */}
+        <BottomStats />
       </div>
 
-      {/* Bottom Stats */}
-      <BottomStats />
+      {/* Mobile Layout - 方案四：左右分栏 + 统一滚动 */}
+      <div className="md:hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        {/* Mobile Header */}
+        <div className="border-b border-gray-200 dark:border-gray-700 p-2">
+          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            Habit Tracker
+          </div>
+        </div>
+
+        {/* Mobile Main Content */}
+        <div className="flex">
+          {/* Left: Fixed Habit Names */}
+          <div className="w-32 border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <HabitList mobile={true} onAddHabit={() => setShowAddModal(true)} />
+          </div>
+
+          {/* Right: Unified Scrollable Area */}
+          <div className="flex-1 overflow-x-auto">
+            <div style={{ minWidth: '640px' }}>
+              {/* Date Header */}
+              <DateHeader mobile={true} />
+              {/* Habit Grid */}
+              <HabitGrid mobile={true} />
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Stats */}
+        <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+          <StatsPanel mobile={true} />
+        </div>
+
+        {/* Bottom Stats */}
+        <BottomStats />
+      </div>
 
       {/* Add Habit Modal */}
       {showAddModal && (
@@ -172,6 +211,6 @@ export function TimesheetClient() {
           onClose={() => setShowAddModal(false)}
         />
       )}
-    </div>
+    </>
   );
 }

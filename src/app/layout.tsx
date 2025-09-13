@@ -2,28 +2,29 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/components/providers/auth-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import { GoogleAnalytics } from '@/components/analytics/google-analytics';
 
 export const metadata: Metadata = {
   title: {
-    default: '每日打卡',
-    template: '%s | 每日打卡',
+    default: 'Habit Tracker - Build Better Habits That Stick',
+    template: '%s | Habit Tracker',
   },
-  description: '一个简洁优雅的每日打卡应用，帮助你养成良好的习惯，追踪个人成长进度。',
-  keywords: ['打卡', '习惯养成', '进度追踪', '个人成长', 'daily-checkin', 'habit-tracker'],
-  authors: [{ name: '葛勇攀', url: 'https://github.com/sbguangha' }],
-  creator: '葛勇攀',
+  description: 'Transform your life with our visual habit tracker. Track daily habits, build streaks, and achieve your goals with the most intuitive habit tracking tool.',
+  keywords: ['habit tracker', 'daily planner', 'productivity app', 'habit building', 'time management', 'daily routine', 'goal tracking', 'habit formation', 'streak tracking', 'personal development'],
+  authors: [{ name: 'LoopHabits', url: 'https://github.com/sbguangha' }],
+  creator: 'LoopHabits',
   openGraph: {
     type: 'website',
-    locale: 'zh_CN',
+    locale: 'en_US',
     url: process.env.NEXT_PUBLIC_APP_URL,
-    title: '每日打卡',
-    description: '一个简洁优雅的每日打卡应用，帮助你养成良好的习惯，追踪个人成长进度。',
-    siteName: '每日打卡',
+    title: 'Habit Tracker - Build Better Habits That Stick',
+    description: 'Transform your life with our visual habit tracker. Track daily habits, build streaks, and achieve your goals with the most intuitive habit tracking tool.',
+    siteName: 'LoopHabits',
   },
   twitter: {
     card: 'summary_large_image',
-    title: '每日打卡',
-    description: '一个简洁优雅的每日打卡应用，帮助你养成良好的习惯，追踪个人成长进度。',
+    title: 'Habit Tracker - Build Better Habits That Stick',
+    description: 'Transform your life with our visual habit tracker. Track daily habits, build streaks, and achieve your goals with the most intuitive habit tracking tool.',
   },
   robots: {
     index: true,
@@ -50,7 +51,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh-CN">
+    <html lang="en">
+      <head>
+        <GoogleAnalytics />
+      </head>
       <body className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <AuthProvider>
           <ThemeProvider
