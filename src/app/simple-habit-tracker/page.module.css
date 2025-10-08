@@ -1,0 +1,154 @@
+.container {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.h2 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  margin-top: 3rem;
+}
+
+.h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.75rem;
+  margin-top: 2rem;
+}
+
+.p {
+  margin-bottom: 1.5rem;
+  color: #6b7280;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.ctaButton {
+  display: inline-block;
+  background-color: #3b82f6;
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  margin: 1rem 0;
+}
+
+.ctaButton:hover {
+  background-color: #2563eb;
+}
+
+.highlightBox {
+  background-color: #f3f4f6;
+  border-left: 4px solid #3b82f6;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.featureGrid {
+  display: grid;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.featureItem {
+  background-color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+}
+
+.comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.comparisonTable th,
+.comparisonTable td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.comparisonTable th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+}
+
+.comparisonTable td {
+  color: #6b7280;
+}
+
+.checkIcon {
+  color: #10b981;
+  font-weight: bold;
+}
+
+.xIcon {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.footer {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 4rem;
+}
+
+.link {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .h1 {
+    font-size: 1.875rem;
+  }
+
+  .h2 {
+    font-size: 1.5rem;
+  }
+
+  .container {
+    padding: 1.5rem 1rem;
+  }
+
+  .ctaButton {
+    display: block;
+    text-align: center;
+    margin: 1rem 0;
+  }
+}

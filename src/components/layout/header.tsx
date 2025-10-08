@@ -26,6 +26,28 @@ export function Header() {
                 <span>Habit Tracker</span>
               </Link>
             </div>
+
+            {/* Student Navigation */}
+            <nav className="hidden md:flex items-center space-x-6">
+              <Link
+                href="/students"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+              >
+                For Students
+              </Link>
+              <Link
+                href="/free-habit-tracker"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+              >
+                Free Tracker
+              </Link>
+              <Link
+                href="/printable-habit-tracker"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+              >
+                Printable
+              </Link>
+            </nav>
           </div>
 
           {/* Right: Auth & Theme */}

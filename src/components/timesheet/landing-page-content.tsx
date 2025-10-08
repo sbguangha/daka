@@ -35,7 +35,7 @@ function HeroSection() {
     <section className="py-20 px-6 text-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
-          Transform Your Life with Smart <span className="text-blue-600">Habit Tracking</span>
+          Free Online Habit Tracker – No Signup, Instant Use
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
           Join thousands who've discovered the secret to lasting change. Our visual habit tracker makes building good habits effortless and fun.
