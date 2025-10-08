@@ -9,6 +9,8 @@ import { AnalyticsTest } from '@/components/analytics/analytics-test';
 import { AuthWrapper } from '@/components/auth/auth-wrapper';
 import { MigrationModal } from '@/components/modals/migration-modal';
 import { useMigrationPrompt } from '@/hooks/use-migration-prompt';
+import { ResourcesSection } from '@/components/layout/resources-section';
+import { Breadcrumbs } from '@/components/layout/breadcrumbs';
 
 export default function HomePage() {
   const {
@@ -72,11 +74,19 @@ export default function HomePage() {
 
         {/* Main Content */}
         <main className="w-full px-0 py-8">
+          {/* Breadcrumbs */}
+          <div className="container mx-auto px-4 mb-4">
+            <Breadcrumbs />
+          </div>
+
           {/* Timesheet Client Component */}
           <TimesheetClient />
 
           {/* Landing Page Content */}
           <LandingPageContent />
+
+          {/* Resources Section */}
+          <ResourcesSection />
         </main>
 
         {/* Data Management */}
