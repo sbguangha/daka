@@ -242,3 +242,45 @@
   font-weight: 600;
   color: #374151;
 }
+
+/* Dark mode overrides for breadcrumbs */
+.dark .unified-breadcrumbs {
+  color: #e5e7eb;
+}
+.dark .breadcrumb-item {
+  color: #d1d5db;
+}
+.dark .breadcrumb-link {
+  color: #60a5fa;
+}
+.dark .breadcrumb-link:hover {
+  color: #93c5fd;
+  background-color: #111827;
+  text-decoration: underline;
+}
+.dark .breadcrumb-group {
+  color: #cbd5e1;
+  background-color: #111827;
+}
+.dark .breadcrumb-current-page {
+  color: #e5e7eb;
+  background-color: rgba(30, 64, 175, 0.25);
+  border-color: #60a5fa;
+}
+.dark .breadcrumb-current {
+  color: #e5e7eb;
+}
+.dark .breadcrumb-ellipsis {
+  color: #9ca3af;
+}
+.dark .breadcrumb-separator {
+  color: #374151;
+}
+.dark .breadcrumb-current-info {
+  background-color: #0b1220;
+  border-left-color: #60a5fa;
+  color: #94a3b8;
+}
+.dark .current-label {
+  color: #e5e7eb;
+}

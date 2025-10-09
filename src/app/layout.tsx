@@ -66,7 +66,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Header />
-            <div className="bg-white border-b border-gray-200 px-6 py-4">
+            <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
               <div className="max-w-6xl mx-auto">
                 <UnifiedBreadcrumbs customSeparator=">" showCurrentPage={false} className="mb-2" />
               </div>

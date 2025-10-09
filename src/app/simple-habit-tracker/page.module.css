@@ -1,12 +1,17 @@
 .container {
-  max-width: 42rem;
+  max-width: 48rem;
   margin: 0 auto;
   padding: 2rem 1rem;
+  color: var(--foreground);
 }
 
 .header {
   text-align: center;
   margin-bottom: 4rem;
+}
+
+.dark .header {
+  color: #e5e7eb;
 }
 
 .h1 {
@@ -17,12 +22,20 @@
   line-height: 1.2;
 }
 
+.dark .h1 {
+  color: #e5e7eb;
+}
+
 .h2 {
   font-size: 1.875rem;
   font-weight: 600;
   color: #1f2937;
   margin-bottom: 1rem;
   margin-top: 3rem;
+}
+
+.dark .h2 {
+  color: #e5e7eb;
 }
 
 .h3 {
@@ -33,15 +46,27 @@
   margin-top: 2rem;
 }
 
+.dark .h3 {
+  color: #d1d5db;
+}
+
 .p {
   margin-bottom: 1.5rem;
   color: #6b7280;
+}
+
+.dark .p {
+  color: #9ca3af;
 }
 
 .subtitle {
   font-size: 1.125rem;
   color: #6b7280;
   margin-bottom: 2rem;
+}
+
+.dark .subtitle {
+  color: #94a3b8;
 }
 
 .ctaButton {
@@ -56,6 +81,10 @@
   margin: 1rem 0;
 }
 
+.dark .ctaButton {
+  background-color: #2563eb;
+}
+
 .ctaButton:hover {
   background-color: #2563eb;
 }
@@ -65,7 +94,17 @@
   border-left: 4px solid #3b82f6;
   padding: 1.5rem;
   margin: 2rem 0;
-  border-radius: 0 0.5rem 0.5rem 0;
+  border-radius: 0.5rem;
+}
+
+.dark .highlightBox {
+  background-color: #0f172a;
+  border-left-color: #60a5fa;
+}
+
+.dark .highlightBox {
+  background-color: #111827;
+  border-left-color: #60a5fa;
 }
 
 .featureGrid {
@@ -80,6 +119,10 @@
   border-radius: 0.5rem;
 }
 
+.dark .featureItem {
+  background-color: #0b1220;
+}
+
 .comparisonTable {
   width: 100%;
   border-collapse: collapse;
@@ -88,6 +131,11 @@
   border-radius: 0.5rem;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .comparisonTable {
+  background-color: #0b1220;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .comparisonTable th,
@@ -103,8 +151,17 @@
   color: #374151;
 }
 
+.dark .comparisonTable th {
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+
 .comparisonTable td {
   color: #6b7280;
+}
+
+.dark .comparisonTable td {
+  color: #9ca3af;
 }
 
 .checkIcon {
@@ -124,9 +181,17 @@
   margin-top: 4rem;
 }
 
+.dark .footer {
+  border-top-color: #374151;
+}
+
 .link {
   color: #3b82f6;
   text-decoration: none;
+}
+
+.dark .link {
+  color: #60a5fa;
 }
 
 .link:hover {

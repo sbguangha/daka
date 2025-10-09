@@ -9,10 +9,8 @@ export default function SimpleHabitTrackerPage() {
     <div style={{
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
       lineHeight: 1.6,
-      color: '#374151',
-      backgroundColor: '#ffffff',
       fontSize: '16px'
-    }}>
+    }} className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
 
       <main className={styles.container}>
         <header className={styles.header}>
