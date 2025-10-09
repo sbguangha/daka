@@ -3,6 +3,8 @@ import './globals.css';
 import { AuthProvider } from '@/components/providers/auth-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { GoogleAnalytics } from '@/components/analytics/google-analytics';
+import { Header } from '@/components/layout/header';
+import { UnifiedBreadcrumbs } from '@/components/layout/unified-breadcrumbs';
 
 export const metadata: Metadata = {
   title: {
@@ -63,6 +65,12 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <Header />
+            <div className="bg-white border-b border-gray-200 px-6 py-4">
+              <div className="max-w-6xl mx-auto">
+                <UnifiedBreadcrumbs customSeparator=">" showCurrentPage={false} className="mb-2" />
+              </div>
+            </div>
             {children}
           </ThemeProvider>
         </AuthProvider>

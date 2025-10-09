@@ -2,6 +2,7 @@
 
 import styles from './page.module.css';
 import Link from 'next/link';
+import { UnifiedBreadcrumbs } from '@/components/layout/unified-breadcrumbs';
 
 export default function SimpleHabitTrackerPage() {
   return (
@@ -12,6 +13,7 @@ export default function SimpleHabitTrackerPage() {
       backgroundColor: '#ffffff',
       fontSize: '16px'
     }}>
+
       <main className={styles.container}>
         <header className={styles.header}>
           <h1 className={styles.h1}>The Simplest Habit Tracker Online – Zero Friction, 100% Focus</h1>

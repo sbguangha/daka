@@ -10,7 +10,7 @@ import { AuthWrapper } from '@/components/auth/auth-wrapper';
 import { MigrationModal } from '@/components/modals/migration-modal';
 import { useMigrationPrompt } from '@/hooks/use-migration-prompt';
 import { ResourcesSection } from '@/components/layout/resources-section';
-import { Breadcrumbs } from '@/components/layout/breadcrumbs';
+import { EnhancedBreadcrumbs } from '@/components/layout/breadcrumbs-enhanced';
 
 export default function HomePage() {
   const {
@@ -69,15 +69,8 @@ export default function HomePage() {
   return (
     <AuthWrapper>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        {/* Header */}
-        <Header />
-
         {/* Main Content */}
         <main className="w-full px-0 py-8">
-          {/* Breadcrumbs */}
-          <div className="container mx-auto px-4 mb-4">
-            <Breadcrumbs />
-          </div>
 
           {/* Timesheet Client Component */}
           <TimesheetClient />
