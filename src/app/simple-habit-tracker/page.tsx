@@ -6,11 +6,11 @@ import { UnifiedBreadcrumbs } from '@/components/layout/unified-breadcrumbs';
 
 export default function SimpleHabitTrackerPage() {
   return (
-    <div style={{
+    <div className={styles.pageRoot} style={{
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
       lineHeight: 1.6,
       fontSize: '16px'
-    }} className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    }}>
 
       <main className={styles.container}>
         <header className={styles.header}>
@@ -128,7 +128,7 @@ export default function SimpleHabitTrackerPage() {
           <h2 className={styles.h2}>Ready to Experience True Simplicity?</h2>
           <p className={styles.p}>Join thousands who've ditched complex apps for something that actually works.</p>
           <Link href="/free-habit-tracker" className={styles.ctaButton}>Try The Simplest Habit Tracker →</Link>
-          <p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '1rem' }}>Free forever • No signup required • Works instantly</p>
+          <p className={styles.smallMuted}>Free forever • No signup required • Works instantly</p>
         </section>
       </main>
 
