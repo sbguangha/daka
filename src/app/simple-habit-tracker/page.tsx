@@ -3,8 +3,22 @@
 import styles from './page.module.css';
 import Link from 'next/link';
 import { UnifiedBreadcrumbs } from '@/components/layout/unified-breadcrumbs';
+import { useEffect } from 'react';
 
 export default function SimpleHabitTrackerPage() {
+  // Add canonical URL
+  useEffect(() => {
+    const canonicalUrl = document.querySelector('link[rel="canonical"]');
+    if (!canonicalUrl) {
+      const link = document.createElement('link');
+      link.rel = 'canonical';
+      link.href = 'https://www.habittracker.life/simple-habit-tracker/';
+      document.head.appendChild(link);
+    } else {
+      canonicalUrl.setAttribute('href', 'https://www.habittracker.life/simple-habit-tracker/');
+    }
+  }, []);
+
   return (
     <div className={styles.pageRoot} style={{
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',

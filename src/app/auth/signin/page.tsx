@@ -4,6 +4,9 @@ import { GoogleSignInButton } from "@/components/auth/google-signin-button"
 export const metadata: Metadata = {
   title: "Sign In - Daily Habit Tracker",
   description: "Sign in to Daily Habit Tracker app",
+  alternates: {
+    canonical: 'https://www.habittracker.life/auth/signin/',
+  },
 }
 
 export default function SignInPage() {

@@ -9,6 +9,17 @@ export default function HowToBuildAHabitPage() {
   useEffect(() => {
     document.title = "How to Build a Habit That Actually Sticks - Complete Student Guide";
 
+    // Add canonical URL
+    const canonicalUrl = document.querySelector('link[rel="canonical"]');
+    if (!canonicalUrl) {
+      const link = document.createElement('link');
+      link.rel = 'canonical';
+      link.href = 'https://www.habittracker.life/how-to-build-a-habit/';
+      document.head.appendChild(link);
+    } else {
+      canonicalUrl.setAttribute('href', 'https://www.habittracker.life/how-to-build-a-habit/');
+    }
+
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content',

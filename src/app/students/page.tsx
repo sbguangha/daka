@@ -9,6 +9,17 @@ export default function StudentHabitTrackerPage() {
   useEffect(() => {
     document.title = "Habit Tracker for Students – Free Focus & Study Routine Tool";
 
+    // Add canonical URL
+    const canonicalUrl = document.querySelector('link[rel="canonical"]');
+    if (!canonicalUrl) {
+      const link = document.createElement('link');
+      link.rel = 'canonical';
+      link.href = 'https://www.habittracker.life/students/';
+      document.head.appendChild(link);
+    } else {
+      canonicalUrl.setAttribute('href', 'https://www.habittracker.life/students/');
+    }
+
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {

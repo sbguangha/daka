@@ -64,6 +64,17 @@ export default function HomePage() {
       meta.content = 'Visual habit tracking made simple. Join thousands building better habits with our intuitive tracker.';
       document.head.appendChild(meta);
     }
+
+    // Add canonical URL
+    const canonicalUrl = document.querySelector('link[rel="canonical"]');
+    if (!canonicalUrl) {
+      const link = document.createElement('link');
+      link.rel = 'canonical';
+      link.href = 'https://www.habittracker.life/';
+      document.head.appendChild(link);
+    } else {
+      canonicalUrl.setAttribute('href', 'https://www.habittracker.life/');
+    }
   }, []);
 
   return (

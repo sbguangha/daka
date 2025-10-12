@@ -27,6 +27,17 @@ export default function PrintableHabitTrackerPage() {
   useEffect(() => {
     document.title = "Free Printable Habit Tracker PDF - Download & Print Instantly";
 
+    // Add canonical URL
+    const canonicalUrl = document.querySelector('link[rel="canonical"]');
+    if (!canonicalUrl) {
+      const link = document.createElement('link');
+      link.rel = 'canonical';
+      link.href = 'https://www.habittracker.life/printable-habit-tracker/';
+      document.head.appendChild(link);
+    } else {
+      canonicalUrl.setAttribute('href', 'https://www.habittracker.life/printable-habit-tracker/');
+    }
+
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content',

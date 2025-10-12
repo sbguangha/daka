@@ -8,6 +8,17 @@ export default function TestSQLPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    // Add noindex meta tag for test pages
+    const metaRobots = document.querySelector('meta[name="robots"]');
+    if (!metaRobots) {
+      const meta = document.createElement('meta');
+      meta.name = 'robots';
+      meta.content = 'noindex, nofollow';
+      document.head.appendChild(meta);
+    } else {
+      metaRobots.setAttribute('content', 'noindex, nofollow');
+    }
+
     async function fetchTasks() {
       try {
         setLoading(true)

@@ -38,6 +38,17 @@ export default function TestSyncPage() {
   }
 
   useEffect(() => {
+    // Add noindex meta tag for test pages
+    const metaRobots = document.querySelector('meta[name="robots"]');
+    if (!metaRobots) {
+      const meta = document.createElement('meta');
+      meta.name = 'robots';
+      meta.content = 'noindex, nofollow';
+      document.head.appendChild(meta);
+    } else {
+      metaRobots.setAttribute('content', 'noindex, nofollow');
+    }
+
     if (isAuthenticated) {
       setLastSyncTime(new Date().toLocaleTimeString())
       setSyncStatus("自动同步完成")

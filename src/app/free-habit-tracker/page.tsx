@@ -28,6 +28,17 @@ export default function FreeHabitTrackerPage() {
   useEffect(() => {
     document.title = "Free Habit Tracker - No Signup Required | Start Tracking Instantly";
 
+    // Add canonical URL
+    const canonicalUrl = document.querySelector('link[rel="canonical"]');
+    if (!canonicalUrl) {
+      const link = document.createElement('link');
+      link.rel = 'canonical';
+      link.href = 'https://www.habittracker.life/free-habit-tracker/';
+      document.head.appendChild(link);
+    } else {
+      canonicalUrl.setAttribute('href', 'https://www.habittracker.life/free-habit-tracker/');
+    }
+
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content',
