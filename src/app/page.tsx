@@ -1,110 +1,46 @@
-'use client';
-
-import { useEffect } from 'react';
-import { Header } from '@/components/layout/header';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import type { Metadata } from 'next';
 import { TimesheetClient } from '@/components/timesheet/timesheet-client';
-import { LandingPageContent } from '@/components/timesheet/landing-page-content';
-import { DataManager } from '@/components/timesheet/data-manager';
-import { AnalyticsTest } from '@/components/analytics/analytics-test';
-import { AuthWrapper } from '@/components/auth/auth-wrapper';
-import { MigrationModal } from '@/components/modals/migration-modal';
-import { useMigrationPrompt } from '@/hooks/use-migration-prompt';
 import { ResourcesSection } from '@/components/layout/resources-section';
-import { EnhancedBreadcrumbs } from '@/components/layout/breadcrumbs-enhanced';
+import { LandingPageContent } from '@/components/timesheet/landing-page-content';
+import { LandingPageInteractiveDemo } from '@/components/timesheet/landing-page-interactive-demo';
+import { HomePageClientShell } from './_components/home-page-client-shell';
+
+export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Ultimate Habit Tracker - Build Better Habits That Stick | LoopHabits',
+  description:
+    'Transform your life with our visual habit tracker. Track daily habits, build streaks, and achieve your goals with the most intuitive habit tracking tool. Start free today!',
+  keywords:
+    'habit tracker, daily planner, productivity app, habit building, time management, daily routine, goal tracking, habit formation, streak tracking, personal development',
+  openGraph: {
+    title: 'Ultimate Habit Tracker - Build Better Habits That Stick',
+    description:
+      'Visual habit tracking made simple. Join thousands building better habits with our intuitive tracker.',
+    url: 'https://www.habittracker.life/',
+  },
+  alternates: {
+    canonical: 'https://www.habittracker.life/',
+  },
+};
+
+const AnalyticsTest = dynamic(() => import('@/components/analytics/analytics-test').then(mod => mod.AnalyticsTest), {
+  ssr: false,
+});
 
 export default function HomePage() {
-  const {
-    shouldShowMigration,
-    setShouldShowMigration
-  } = useMigrationPrompt();
-
-  // SEO optimization
-  useEffect(() => {
-    document.title = "Ultimate Habit Tracker - Build Better Habits That Stick | LoopHabits";
-
-    // Update meta description
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content',
-        'Transform your life with our visual habit tracker. Track daily habits, build streaks, and achieve your goals with the most intuitive habit tracking tool. Start free today!'
-      );
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = 'description';
-      meta.content = 'Transform your life with our visual habit tracker. Track daily habits, build streaks, and achieve your goals with the most intuitive habit tracking tool. Start free today!';
-      document.head.appendChild(meta);
-    }
-
-    // Add keywords meta tag
-    const metaKeywords = document.querySelector('meta[name="keywords"]');
-    if (metaKeywords) {
-      metaKeywords.setAttribute('content',
-        'habit tracker, daily planner, productivity app, habit building, time management, daily routine, goal tracking, habit formation, streak tracking, personal development'
-      );
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = 'keywords';
-      meta.content = 'habit tracker, daily planner, productivity app, habit building, time management, daily routine, goal tracking, habit formation, streak tracking, personal development';
-      document.head.appendChild(meta);
-    }
-
-    // Add Open Graph tags
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (!ogTitle) {
-      const meta = document.createElement('meta');
-      meta.setAttribute('property', 'og:title');
-      meta.content = 'Ultimate Habit Tracker - Build Better Habits That Stick';
-      document.head.appendChild(meta);
-    }
-
-    const ogDescription = document.querySelector('meta[property="og:description"]');
-    if (!ogDescription) {
-      const meta = document.createElement('meta');
-      meta.setAttribute('property', 'og:description');
-      meta.content = 'Visual habit tracking made simple. Join thousands building better habits with our intuitive tracker.';
-      document.head.appendChild(meta);
-    }
-
-    // Add canonical URL
-    const canonicalUrl = document.querySelector('link[rel="canonical"]');
-    if (!canonicalUrl) {
-      const link = document.createElement('link');
-      link.rel = 'canonical';
-      link.href = 'https://www.habittracker.life/';
-      document.head.appendChild(link);
-    } else {
-      canonicalUrl.setAttribute('href', 'https://www.habittracker.life/');
-    }
-  }, []);
-
   return (
-    <AuthWrapper>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        {/* Main Content */}
-        <main className="w-full px-0 py-8">
-
-          {/* Timesheet Client Component */}
+    <HomePageClientShell>
+      <div className="space-y-16">
+        <Suspense fallback={null}>
           <TimesheetClient />
-
-          {/* Landing Page Content */}
-          <LandingPageContent />
-
-          {/* Resources Section */}
-          <ResourcesSection />
-        </main>
-
-        {/* Data Management */}
-        <DataManager />
-
-        {/* Analytics Test (Development Only) */}
-        {process.env.NODE_ENV === 'development' && <AnalyticsTest />}
-
-        {/* Migration Modal */}
-        <MigrationModal
-          open={shouldShowMigration}
-          onOpenChange={setShouldShowMigration}
-        />
+        </Suspense>
+        <LandingPageContent />
+        <LandingPageInteractiveDemo />
+        <ResourcesSection />
       </div>
-    </AuthWrapper>
+    </HomePageClientShell>
   );
 }
