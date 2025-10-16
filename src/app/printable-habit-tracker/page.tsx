@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CheckCircle, Calendar, Star } from 'lucide-react';
-import dynamic from 'next/dynamic';
+import dynamicImport from 'next/dynamic';
 
-const PrintableTemplateSelector = dynamic(
+const PrintableTemplateSelector = dynamicImport(
   () => import('./template-selector').then(mod => mod.PrintableTemplateSelector),
   { ssr: false },
 );
@@ -12,11 +12,11 @@ export const dynamic = 'force-static';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Free Printable Habit Tracker PDF - Download & Print Instantly',
+  title: 'Free Printable Habit Tracker PDF - Download',
   description:
     'Download free printable habit tracker PDF templates. Perfect for students, bullet journals, and wall tracking. Monthly, weekly, and student-focused designs.',
   keywords:
-    'printable habit tracker, habit tracker pdf, habit tracker template, printable planner, habit chart, student habit tracker, bullet journal habit tracker',
+    'printable habit tracker, habit tracker pdf, habit tracker template, bullet journal habit tracker',
   openGraph: {
     title: 'Free Printable Habit Tracker PDF - Download & Print Instantly',
     description:

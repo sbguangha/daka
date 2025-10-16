@@ -12,11 +12,11 @@ export const dynamic = 'force-static';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Habit Tracker for Students – Free Focus & Study Routine Tool',
+  title: 'Habit Tracker for Students',
   description:
     'Struggling with focus or all-nighters? Track student habits like study blocks, sleep, and morning routines—free, no signup required.',
   keywords:
-    'habit tracker for students, student productivity, study habits, college habits, exam prep, focus tracker, sleep routine, morning routine, student life, academic success',
+    'habit tracker for students,  focus tracker, morning routine, student life, academic success',
   openGraph: {
     title: 'Habit Tracker for Students – Free Focus & Study Routine Tool',
     description:

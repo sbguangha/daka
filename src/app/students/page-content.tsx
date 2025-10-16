@@ -157,7 +157,7 @@ export function FreeToolsSection() {
     },
     {
       title: 'Printable Habit Tracker',
-      description: 'Old school but effective! Stick it on your dorm wall where you can't ignore it.',
+      description: "Old school but effective! Stick it on your dorm wall where you can't ignore it.",
       icon: <TrendingUp className="w-8 h-8 text-blue-500" />,
       link: '/printable-habit-tracker',
       cta: 'Download PDF →',

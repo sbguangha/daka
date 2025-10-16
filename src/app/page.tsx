@@ -1,4 +1,4 @@
-import dynamic from 'next/dynamic';
+import dynamicImport from 'next/dynamic';
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { TimesheetClient } from '@/components/timesheet/timesheet-client';
@@ -10,11 +10,11 @@ import { HomePageClientShell } from './_components/home-page-client-shell';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Ultimate Habit Tracker - Build Better Habits That Stick | LoopHabits',
+  title: 'Ultimate Habit Tracker - Build Better Habits That Stick',
   description:
-    'Transform your life with our visual habit tracker. Track daily habits, build streaks, and achieve your goals with the most intuitive habit tracking tool. Start free today!',
+    'Transform your life with our visual habit tracker. Track daily habits, build streaks, and achieve your goals with the most intuitive habit tracking tool.',
   keywords:
-    'habit tracker, daily planner, productivity app, habit building, time management, daily routine, goal tracking, habit formation, streak tracking, personal development',
+    'habit tracker, daily planner, habit building, daily routine, goal tracking, habit formation, personal development',
   openGraph: {
     title: 'Ultimate Habit Tracker - Build Better Habits That Stick',
     description:
@@ -26,9 +26,12 @@ export const metadata: Metadata = {
   },
 };
 
-const AnalyticsTest = dynamic(() => import('@/components/analytics/analytics-test').then(mod => mod.AnalyticsTest), {
-  ssr: false,
-});
+const AnalyticsTest = dynamicImport(
+  () => import('@/components/analytics/analytics-test').then(mod => mod.AnalyticsTest),
+  {
+    ssr: false,
+  }
+);
 
 export default function HomePage() {
   return (

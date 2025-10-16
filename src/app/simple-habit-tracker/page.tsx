@@ -6,11 +6,11 @@ export const dynamic = 'force-static';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'The Simplest Habit Tracker Online – Zero Friction, 100% Focus',
+  title: 'Simplest Habit Tracker Online Zero Friction',
   description:
     'Discover the most minimal habit tracker online. No setup fatigue, no notification overload—just effortless habit building with our simple habit tracker.',
   keywords:
-    'simple habit tracker, minimal habit tracker, no signup habit tracker, effortless habit tracker, minimalist productivity tool',
+    'simple habit tracker, minimal habit tracker, no signup habit tracker, effortless habit tracker',
   openGraph: {
     title: 'The Simplest Habit Tracker Online – Zero Friction, 100% Focus',
     description:

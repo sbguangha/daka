@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, Zap, Star, Clock } from 'lucide-react';
-import dynamic from 'next/dynamic';
+import dynamicImport from 'next/dynamic';
 
-const FreeHabitTrackerInteractiveDemo = dynamic(
+const FreeHabitTrackerInteractiveDemo = dynamicImport(
   () => import('./interactive-demo').then(mod => mod.FreeHabitTrackerInteractiveDemo),
   { ssr: false },
 );
@@ -12,11 +12,11 @@ export const dynamic = 'force-static';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Free Habit Tracker - No Signup Required | Start Tracking Instantly',
+  title: 'Free Habit Tracker - No Signup Required',
   description:
     'Track your habits instantly with our free habit tracker. No signup required. Click to mark complete, build streaks, and achieve your goals today.',
   keywords:
-    'free habit tracker, habit tracking app, no signup habit tracker, online habit tracker, goal tracker, productivity app, streak tracker',
+    'free habit tracker, no signup habit tracker, online habit tracker,streak tracker',
   openGraph: {
     title: 'Free Habit Tracker - No Signup Required | Start Tracking Instantly',
     description:
